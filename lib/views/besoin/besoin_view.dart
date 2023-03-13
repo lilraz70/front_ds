@@ -209,7 +209,12 @@ class BesoinViewState extends State<BesoinView> {
             ],
           ),
         ),
-
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Get.offAllNamed(RouteName.besoinFormView);
+          },
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

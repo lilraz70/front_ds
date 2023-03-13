@@ -1,6 +1,5 @@
 import 'package:front_ds/bindings/edit_profil_binding.dart';
-import 'package:front_ds/views/demande/demande_form_edit_view.dart';
-import 'package:front_ds/widgets/displayReleaseGoodWidgetOfUser.dart';
+import 'package:front_ds/configs/session_data.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import '../bindings/auth_binding.dart';
 import '../bindings/besoin_binding.dart';
@@ -11,16 +10,17 @@ import '../bindings/profile_information_binding.dart';
 import '../pages/enregistrerReleaseGood.dart';
 import '../pages/home.dart';
 import '../pages/initReleaseGoodSearch.dart';
-import '../pages/monCompte.dart';
 import '../pages/searchReleaseGoods.dart';
 import '../pages/updateReleaseGood.dart';
 import '../views/auth/auth_view.dart';
 import '../views/auth/profile_information_sociaux_view.dart';
 import '../views/auth/profile_information_view.dart';
-import '../views/demande/besoin_form_view.dart';
-import '../views/demande/Besoin_view.dart';
+import '../views/besoin/besoin_view.dart';
+import '../views/besoin/besoin_form_edit_view.dart';
+import '../views/besoin/besoin_form_view.dart';
+import '../views/besoin/my_besoin_view.dart';
 import '../views/loading_view.dart';
-import '../views/navigation_view.dart';
+import '../views/home/navigation_view.dart';
 import '../views/onboarding/on_boarding_view.dart';
 import '../views/auth/otp_verification_view.dart';
 import '../views/profil/edit_profil_view.dart';
@@ -33,9 +33,6 @@ class RouteName {
   static String user = '/register/:userString';
 
   static String initReleaseGoodSearch = "/initReleaseGoodSearch";
-
-  static String monCompte = '/monCompte';
-
   static String mesPubs = '/mesPubs';
   static String login = '/login';
   static String searchReleaseGood = '/searchReleaseGood';
@@ -57,13 +54,14 @@ class RouteName {
   static String navigationView = '/navigationView';
   static String profilView = "/profilView";
   static String editProfilView = '/editProfilView';
+  static String myBesoinView = '/myBesoinView';
 }
 
 List<GetPage<dynamic>> appRoutes = [
   GetPage(
       name: RouteName.init,
-      page: () => const OnBoardingView() //const AppStartPoint(),
-      // binding:  HomeBinding(),
+    page: !SessionData.isLoggedIn() ?  ()=> const OnBoardingView() : () => const NavigationView(),
+    binding: HomeBinding(),
       ),
   GetPage(
     name: RouteName.home,
@@ -73,11 +71,6 @@ List<GetPage<dynamic>> appRoutes = [
   GetPage(
     name: RouteName.initReleaseGoodSearch,
     page: () => const InitReleaseGoodSearch(),
-    // binding:  HomeBinding(),
-  ),
-  GetPage(
-    name: RouteName.monCompte,
-    page: () => const MonCompte(),
     // binding:  HomeBinding(),
   ),
   GetPage(
@@ -140,11 +133,16 @@ List<GetPage<dynamic>> appRoutes = [
     binding: BesoinBinding(),
   ),
   GetPage(
+    name: RouteName.myBesoinView,
+    page: () => const MyBesoinView(),
+    binding: BesoinBinding(),
+  ),
+  GetPage(
     name: RouteName.besoinFormView,
     page: ()=> const  BesoinFormView(),
     binding: BesoinBinding(),
   ),
-  GetPage(name: RouteName.besoinFormEditView, page: ()=> const DemandeFormEditView(),
+  GetPage(name: RouteName.besoinFormEditView, page: ()=> const BesoinFormEditView(),
     binding: BesoinBinding(),
   ),
   GetPage(name: RouteName.detailsWidgetView, page: ()=> const DetailsWidgetView(),

@@ -928,7 +928,7 @@ class DetailsWidgetState extends State<DetailsWidgetView> {
           appBar: AppBar(
             leading: InkWell(
               onTap: (() {
-                Get.offAllNamed(RouteName.home);
+                Get.offAllNamed(RouteName.navigationView);
               }),
               child: const Icon(
                 Icons.arrow_back,

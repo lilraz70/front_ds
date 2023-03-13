@@ -4,14 +4,15 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
-import '../configs/app_routes.dart';
-import '../configs/http_config.dart';
-import '../configs/session_data.dart';
-import '../constants/colors.dart';
-import '../pages/home.dart';
-import '../pages/initReleaseGoodSearch.dart';
-import '../widgets/mediumText.dart';
-import 'demande/Besoin_view.dart';
+import '../../configs/app_routes.dart';
+import '../../configs/http_config.dart';
+import '../../configs/session_data.dart';
+import '../../constants/colors.dart';
+import '../../pages/home.dart';
+import '../../pages/initReleaseGoodSearch.dart';
+import '../../widgets/mediumText.dart';
+import '../besoin/besoin_view.dart';
+
 
 class NavigationView extends StatefulWidget {
   const NavigationView({Key? key}) : super(key: key);
@@ -218,6 +219,6 @@ final _navBarItems = [
   SalomonBottomBarItem(
     icon: const Icon(Icons.person),
     title: const Text("Profil"),
-    selectedColor: Colors.teal,
+    selectedColor: AppColors.mainColor,
   ),
 ];

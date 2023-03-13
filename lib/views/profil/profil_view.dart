@@ -46,7 +46,11 @@ class ProfileView extends StatelessWidget {
                       ),
                       const SizedBox(width: 16.0),
                       FloatingActionButton.extended(
-                        onPressed: () {},
+                        onPressed: () {
+                          Get.offAllNamed(
+                            RouteName.myBesoinView,
+                          );
+                        },
                         heroTag: 'Mes besoins',
                         elevation: 0,
                         backgroundColor: Colors.red,

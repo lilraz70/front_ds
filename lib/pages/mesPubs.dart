@@ -17,20 +17,14 @@ class MesPubs extends StatefulWidget {
   @override
   State<MesPubs> createState() => _MesPubsState();
 }
-
-
-
 List<ReleaseGoodModel3> triUser(List<ReleaseGoodModel3> listOfReleaseGoodModel) {
-
     final listTri = listOfReleaseGoodModel.where((element) {
       return element.userId == user['id'];
     }).toList();
 
    // print(listTri.length);
     return listTri;
-
 }
-
 class _MesPubsState extends State<MesPubs> {
 
   Future<List<ReleaseGoodModel3>> retreiveReleaseGood() async {

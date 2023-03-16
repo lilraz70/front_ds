@@ -211,7 +211,7 @@ class OtpVerificationView extends StatelessWidget {
               },
               isFilled: true,
               textColor: AppColors.white,
-              text: 'Vérification',
+              text: 'Valider',
             ),
 
             // Container(

@@ -66,7 +66,7 @@ class OtpVerificationController extends GetxController {
           SessionData.setLoggedInStatus(true);
 
           Get.offAllNamed(
-            RouteName.home,
+            RouteName.navigationView,
           );
         } else {
           Get.offAllNamed(RouteName.profileInformation, arguments: {
@@ -79,7 +79,7 @@ class OtpVerificationController extends GetxController {
         showMessage(
             type: 'error',
             title: "vérification echouée ",
-            message: "Le code entre est incorrect");
+            message: "Veuillez réeesayer");
       }
     }
   }

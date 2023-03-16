@@ -115,7 +115,7 @@ class AuthController extends GetxController {
               SessionData.saveToken(request.data['data']['token']);
               SessionData.setLoggedInStatus(true);
               Get.offAllNamed(
-                RouteName.home,
+                RouteName.navigationView,
               );
             }else{
               Get.offAllNamed(RouteName.profileInformationSociaux, arguments: {
@@ -157,7 +157,7 @@ class AuthController extends GetxController {
             SessionData.saveToken(request.data['data']['token']);
             SessionData.setLoggedInStatus(true);
             Get.offAllNamed(
-              RouteName.home,
+              RouteName.navigationView,
             );
           }else{
             Get.offAllNamed(RouteName.profileInformationSociaux, arguments: {

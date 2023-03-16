@@ -1,6 +1,8 @@
 import 'package:front_ds/bindings/edit_profil_binding.dart';
 import 'package:front_ds/configs/session_data.dart';
+import 'package:front_ds/views/pubs/my_pub_view.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
+import '../bindings/Pub_binding.dart';
 import '../bindings/auth_binding.dart';
 import '../bindings/besoin_binding.dart';
 import '../bindings/home_binding.dart';
@@ -55,12 +57,14 @@ class RouteName {
   static String profilView = "/profilView";
   static String editProfilView = '/editProfilView';
   static String myBesoinView = '/myBesoinView';
+  static String myPubView = '/myPubView';
 }
 
 List<GetPage<dynamic>> appRoutes = [
   GetPage(
       name: RouteName.init,
-    page: !SessionData.isLoggedIn() ?  ()=> const OnBoardingView() : () => const NavigationView(),
+    page: ()=> const OnBoardingView() ,
+   // page: !SessionData.isLoggedIn() ?  ()=> const OnBoardingView() : () => const NavigationView(),
     binding: HomeBinding(),
       ),
   GetPage(
@@ -158,4 +162,8 @@ List<GetPage<dynamic>> appRoutes = [
       name: RouteName.editProfilView,
       page: () => EditProfilView(),
       binding: EditProfilBinding()),
+  GetPage(
+      name: RouteName.myPubView,
+      page: () => MyPubView(),
+      binding: PubBinding()),
 ];

@@ -37,7 +37,11 @@ class ProfileView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       FloatingActionButton.extended(
-                        onPressed: () {},
+                        onPressed: () {
+                          Get.offAllNamed(
+                            RouteName.myPubView,
+                          );
+                        },
                         heroTag: 'Mes publications',
                         elevation: 0,
                         label: const Text("Mes publications"),
@@ -79,7 +83,11 @@ class ProfileInfoRow extends StatelessWidget {
       Get.offAllNamed(
       RouteName.editProfilView,
     ); },  ),
-   ProfileInfoItem( title: "Déconnexion", icon: Icons.logout , action:((){}) ),
+   ProfileInfoItem( title: "Déconnexion", icon: Icons.logout , action:((){
+     Get.offAllNamed(
+       RouteName.authView,
+     );
+   }) ),
     //ProfileInfoItem("Following", 200),
   ];
 

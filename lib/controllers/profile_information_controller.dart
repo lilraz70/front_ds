@@ -53,7 +53,7 @@ class ProfileInformationController extends GetxController {
               SessionData.saveToken(request.data['data']['token']);
               SessionData.setLoggedInStatus(true);
               Get.offAllNamed(
-                RouteName.home,
+                RouteName.navigationView,
               );
             }else{
               showMessage(type: 'error', title: "Inscription echoué", message:"veuillez réessayer");
@@ -79,7 +79,7 @@ class ProfileInformationController extends GetxController {
               SessionData.saveToken(request.data['data']['token']);
               SessionData.setLoggedInStatus(true);
               Get.offAllNamed(
-                RouteName.home,
+                RouteName.navigationView,
               );
             }else{
               errorMessages = converValidationErrors(value:request.data['errors'] );
@@ -106,7 +106,7 @@ class ProfileInformationController extends GetxController {
               SessionData.saveToken(request.data['data']['token']);
               SessionData.setLoggedInStatus(true);
               Get.offAllNamed(
-                RouteName.home,
+                RouteName.navigationView,
               );
             }else{
               errorMessages = converValidationErrors(value:request.data['errors'] );

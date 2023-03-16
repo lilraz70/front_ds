@@ -74,7 +74,7 @@ class UserServices {
       required String telephone}) async {
     var request = await firstHttpPOST(
         "/user_login_by_phone", {'telephone': telephone,});
-    if (request.data['success'] == true) {
+    if (request.ok) {
         return RequestResult(true, request.data);
     } else {
       return RequestResult(false, request.data);

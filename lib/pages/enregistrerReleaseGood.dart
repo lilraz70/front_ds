@@ -728,7 +728,7 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
           backgroundColor: AppColors.mainColor,
           leading: InkWell(
             onTap: (() {
-              Get.offAllNamed(RouteName.home);
+              Get.offAllNamed(RouteName.navigationView);
             }),
             child: const Icon(
               Icons.arrow_back,

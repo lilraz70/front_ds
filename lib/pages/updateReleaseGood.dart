@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
-
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:front_ds/models/PropertyTypeModel.dart';
@@ -11,35 +11,22 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-
+import 'package:nb_utils/nb_utils.dart';
 import '../configs/app_routes.dart';
 import '../configs/http_config.dart';
+import '../controllers/edit_pub_controller.dart';
+import '../functions/utils.dart';
 import '../models/Conveniences.dart';
 import '../models/ReleaseGoodModel3.dart';
 import '../widgets/cardItemCheckbox2.dart';
 import '../widgets/cardItemPlusOuMoins2.dart';
 
-
 class UpdateReleaseGood extends StatefulWidget {
 
-  // final ville,quartier,type, dateDeLibre,loyer,comment,tel,cond;
-
- final releaseGoodString;
-
-   UpdateReleaseGood({super.key,
-     required this.releaseGoodString,
-     });
-
-
-  @override
-  State<UpdateReleaseGood> createState() => _UpdateReleaseGoodState();
-
+  const  UpdateReleaseGood({super.key,});
+  @override State<UpdateReleaseGood> createState() => _UpdateReleaseGoodState();
 
    Future retreiveDropdownQuartierInfo() async {
-//await Future.delayed(Duration(seconds: 30));
-// print('retreiveReleaseGood $token');
-
-
      Map<String, String> headers = {
        "Content-Type": "application/json",
        'Accept': 'application/json',
@@ -47,7 +34,7 @@ class UpdateReleaseGood extends StatefulWidget {
      };
 
 // var city_id=1;
-     String fullUrl = '${baseUrl}v1/quartiers-search/?&setcity=$cityId';
+     String fullUrl = '${baseUrl}/v1/quartiers-search/?&setcity=$cityId';
 
    //  print(fullUrl);
      final uri = Uri.parse(fullUrl);
@@ -81,7 +68,7 @@ class UpdateReleaseGood extends StatefulWidget {
        };
 
        // var city_id=1;
-       String fullUrl = '${baseUrl}v1/property-types';
+       String fullUrl = '${baseUrl}/v1/property-types';
 
        // print(fullUrl);
        final uri = Uri.parse(fullUrl);
@@ -142,7 +129,7 @@ class UpdateReleaseGood extends StatefulWidget {
          'Authorization': 'Bearer $token',
        };
 
-       String fullUrl = '${baseUrl}v1/city-name/$countryId';
+       String fullUrl = '${baseUrl}/v1/city-name/$countryId';
 
        // print(fullUrl);
        final uri = Uri.parse(fullUrl);
@@ -179,13 +166,11 @@ class UpdateReleaseGood extends StatefulWidget {
      listOfQuartierName = list;
    }
 }
-
 class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
-
+  String releaseGoodString =  Get.arguments['releaseGoodString'];
   Future initializing() async {
-    var data=jsonDecode(widget.releaseGoodString);
+    var data =jsonDecode(releaseGoodString);
     releaseGood=ReleaseGoodModel3.fromJson(data);
-
     prix=releaseGood.cout.toString();
     localisation=releaseGood.localisation.toString().compareTo('null')==0 ? '' : releaseGood.localisation.toString();
     conditions=releaseGood.conditionsBailleur;
@@ -210,6 +195,14 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
       majListQuartier(retreiverListOfQuartierName);
     });
 
+    controller.pubImage!(releaseGood.image_url);
+    controller.pubListImagePath.clear();
+    controller.pubListImagePath = releaseGood.images!;
+    /*releaseGood.images?.forEach((element) {
+      controller.pubListImagePath.add(element['image_url']);
+    });*/
+    //controller.pubSelectedFileCount.value = controller.pubListImagePath.length;
+    controller.pubSelectedFileCount.value = releaseGood.images!.length;
   }
     void majListQuartier(List<String> list) {
       listOfQuartierName = list;
@@ -217,7 +210,7 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
 
   Future retreiveReleaseGood() async {
 
-    var fulUrl = '${apiUrl}v1/release-goods-search/${user['id']}';
+    var fulUrl = '${apiUrl}/v1/release-goods-search/${user['id']}';
     Map<String, String> headers = {
       "Content-Type": "application/json",
       'Accept': 'application/json',
@@ -338,47 +331,6 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
     return ids.toString();
   }
 
-   /* String recupConvIdsAnnules() {
-      String ids = "";
-      int i = 0;
-      for (var count in nbConvList) {
-        if (count == 0 && checkedConvIds.contains(listOfConvenience.elementAt(i).id)) { // si l'élément de nbConvList est > 0 mais fait pas parti des conveniences venus cochés
-          ids = "${listOfConvenience.elementAt(i).id},$ids";
-          convNbAnnules = "$count,$convNb";
-        }
-        i++;
-      }
-
-      if (ids.isNotEmpty) {
-        ids = ids.substring(0, ids.length - 1);
-        convNb = convNb.substring(0, convNb.length - 1);
-      }
-
-
-      return ids.toString();
-    }*/
-
-    /*String recupConvIdsModifies() {
-      String ids = "";
-      int i = 0;
-      for (var count in nbConvList) {
-        if (count > 0 && checkedConvIds.contains(listOfConvenience.elementAt(i).id)) { // si l'élément de nbConvList est > 0 mais fait pas parti des conveniences venus cochés
-          ids = "${listOfConvenience.elementAt(i).id},$ids";
-          convNbModifies = "$count,$convNb";
-
-        }
-        i++;
-      }
-
-      if (ids.isNotEmpty) {
-        ids = ids.substring(0, ids.length - 1);
-        convNb = convNb.substring(0, convNb.length - 1);
-      }
-
-
-      return ids.toString();
-    }*/
-
     void recupConvIdsUpdated() {
       int i = 0;
       updatedConvIds.clear();
@@ -487,25 +439,51 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
     return int.parse(releaseGoodConv.first.id.toString());
   }
   Future update() async {
-//await Future.delayed(Duration(seconds: 30));
-
-
-
     dateDeLiberation = formatDateBD(dateTimeChoosen);
-
     Map<String, String> headers = {
       "Content-Type": "application/json",
       'Accept': 'application/json',
       'Authorization': 'Bearer $token',
     };
+    print("===== IDS ====> ${controller.deleteListImageId}");
 
-
-     String fullUrl="${baseUrl}v1/release-goods/${releaseGood.id}?date_sorti_prevu=$dateDeLiberation&setcountry_id=$countryId&city_id=$cityId&quartier_id=$quartierId&nb_chambre=$nbChambre&cout=$prix&loyer_augmentera=false&user_access=$userAccess&emergencylevel_id=1&propertytype_id=$propertyId&localisation=$localisation&commentaires=$commentaire&conditions_bailleur=$conditions&contact_bailleur=$contact&date_limite=12/12/23&conveniencetype_ids=$newConvIDs&conveniencetype_nb=$newConvNb";
-
-
+    String deleteImageIds = controller.deleteListImageId.join(',');
+     String fullUrl="$baseUrl/v1/release-goods/${releaseGood.id}?date_sorti_prevu=$dateDeLiberation&delete_image_id[]=$deleteImageIds&setcountry_id=$countryId&city_id=$cityId&quartier_id=$quartierId&nb_chambre=$nbChambre&cout=$prix&loyer_augmentera=false&user_access=$userAccess&emergencylevel_id=1&propertytype_id=$propertyId&localisation=$localisation&commentaires=$commentaire&conditions_bailleur=$conditions&contact_bailleur=$contact&date_limite=12/12/23&conveniencetype_ids=$newConvIDs&conveniencetype_nb=$newConvNb";
     final uri = Uri.parse(fullUrl);
-    http.Response response2 = await http.patch(uri, headers: headers);
+    http.Response response2 = await http.put(uri, headers: headers);
+    print("======= DATA ====> ${jsonDecode(response2.body)}");
     return response2;
+ /*   dateDeLiberation = formatDateBD(dateTimeChoosen);
+    final uri = Uri.parse('$baseUrl/v1/release-goods/${releaseGood.id}');
+    var request = http.MultipartRequest('PUT', uri);
+    request.fields['date_sorti_prevu'] = dateDeLiberation!;
+    request.fields['conditions_bailleur'] = conditions!;
+    request.fields['nb_chambre'] = nbChambre.toString();
+    request.fields['localisation'] =localisation!;
+    request.fields['propertytype_id'] = propertyId.toString();
+    request.fields['setcountry_id'] = countryId.toString();
+    request.fields['city_id'] = cityId.toString();
+    request.fields['quartier_id'] = quartierId.toString();
+    request.fields['emergencylevel_id'] = 1.toString();
+    request.fields['cout'] = prix.toString();
+    request.fields['loyer_augmentera'] = false.toString();
+    request.fields['contact_bailleur'] = contact!;
+
+   request.fields['commentaires'] = commentaire!;
+    request.fields['date_limite'] = dateDeLiberation!;
+    request.fields['conveniencetype_ids'] = newConvIDs;
+    request.fields['conveniencetype_nb'] = newConvNb;
+    request.fields['delete_image_id'] = jsonEncode(controller.deleteListImageId);
+    request.headers.addAll({
+      "Content-Type": "application/json",
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    });
+
+    var response2 = await request.send();
+    var data = await response2.stream.bytesToString();
+    print("=======> ${jsonDecode(data)}");
+    return response2;*/
   }
 
 
@@ -569,7 +547,7 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
       };
 
 // var city_id=1;
-      String fullUrl = '${baseUrl}v1/quartiers-search/?&setcity=$cityId';
+      String fullUrl = '${baseUrl}/v1/quartiers-search/?&setcity=$cityId';
 
       //print(fullUrl);
       final uri = Uri.parse(fullUrl);
@@ -603,7 +581,7 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
         };
 
         // var city_id=1;
-        String fullUrl = '${baseUrl}v1/property-types';
+        String fullUrl = '${baseUrl}/v1/property-types';
 
         //print(fullUrl);
         final uri = Uri.parse(fullUrl);
@@ -618,19 +596,7 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
         PropertyTypeModel propertyTypeModel = PropertyTypeModel.fromJson(data);
 
 
-        /*  List<String> retreiverListOfCityName=['Choisir le type'];
-      List<int> retreiverListOfCityId=[];
-      for (var element in (data as List)) {
-        retreiverListOfCityName.add(element['intitule']);
-        retreiverListOfCityId.add(element['id']);
-      }
 
-      //setState(() {
-      listOfCityName=retreiverListOfCityName;
-      listOfCityId=retreiverListOfCityId;*/
-        //});
-
-        //majListQuartier(retreiverListOfCityName);
 
         listOfProperty = ['Choisir le type'];
         propertyTypeModel.data!.removeAt(6);
@@ -743,8 +709,8 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
           'Authorization': 'Bearer $token',
         };
 
-        String fullUrl = '${baseUrl}v1/city-name/$countryId';
-        
+        String fullUrl = '${baseUrl}/v1/city-name/$countryId';
+
         final uri = Uri.parse(fullUrl);
         http.Response response2 = await http.get(uri, headers: headers);
 
@@ -992,8 +958,7 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
         'Authorization': 'Bearer $token',
       };
 
-
-      String fullUrl = '${baseUrl}v1/convenience-types';
+      String fullUrl = '${baseUrl}/v1/convenience-types';
 
      // print(fullUrl);
       final uri = Uri.parse(fullUrl);
@@ -1096,27 +1061,47 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
   _dismissDialog() {
     Navigator.pop(context);
   }
-
+  EditPubController controller = Get.put(EditPubController());
+  dynamic hasInternetConnection = checkConnexion();
   @override
   Widget build(BuildContext context) {
 
-
+  return   GetBuilder<EditPubController>(builder: (_) {
+    var deviceHeight = MediaQuery.of(context).size.height;
+    var devicewidth = MediaQuery.of(context).size.width;
     return Scaffold(
-
+      appBar: AppBar(
+        backgroundColor: AppColors.mainColor,
+        leading: InkWell(
+          onTap: (() {
+            Get.offAllNamed(RouteName.navigationView);
+          }),
+          child: const Icon(
+            Icons.arrow_back,
+            size: 25,
+            color: Colors.white,
+          ),
+        ),
+        title: Title(
+          color: Colors.white,
+          child: const Text(
+            'Modifier la libération',
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      ),
       body:  FutureBuilder(
-          future: initializing(),
-          builder: (context , snapshot){
-            if(snapshot.connectionState==ConnectionState.waiting){
-              return Center(
-
-                child: Image.asset(
-                  'assets/images/logomdpi.png',
-                ),
-
-
-              );
-            }else{
-              return  Form(
+        future: initializing(),
+        builder: (context , snapshot){
+          if(snapshot.connectionState==ConnectionState.waiting){
+            return Center(
+              child: Image.asset(
+                'assets/images/logomdpi.png',
+              ),
+            );
+          }else{
+            return  SafeArea(
+              child: Form(
                   key: _formKey,
 
                   child: Container(
@@ -1127,8 +1112,166 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
 
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-
-
+                          if (controller.pubImage!.value!.isEmpty)
+                            Card(
+                              elevation: 0,
+                              shape: const RoundedRectangleBorder(
+                                side: BorderSide(
+                                  color: Colors.grey,
+                                ),
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(10)),
+                              ),
+                              child: SizedBox(
+                                width: devicewidth * 0.80,
+                                height: devicewidth * 0.2,
+                                child: InkWell(
+                                  onTap: (() {
+                                    controller.getImage(id:  releaseGood.id);
+                                  }),
+                                  child: Column(
+                                    children: [
+                                      15.height,
+                                    const  Icon(Icons.add_to_photos),
+                                      3.height,
+                                    const  Text('Ajouter la photo par defaut'),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (controller.pubImage!.value!.isNotEmpty)
+                            Container(
+                              width: devicewidth * 1,
+                              height: deviceHeight * 0.260,
+                              decoration: BoxDecoration(
+                                  image: controller.pubImage == null
+                                      ? null
+                                      : DecorationImage(
+                                    image: NetworkImage(
+                                      "$baseResourceUrl${controller.pubImage}",
+                                    ),
+                                  )),
+                              child: Center(
+                                child: IconButton(
+                                  icon: const Icon(
+                                    Icons.image,
+                                    size: 50,
+                                    color: Colors.black38,
+                                  ),
+                                  onPressed: () {
+                                    controller.getImage(id: releaseGood.id);
+                                  },
+                                ),
+                              ),
+                            ),
+                          50.height,
+                          Obx(() {
+                            if (controller.pubSelectedFileCount.value > 0) {
+                              return Row(
+                                children: [
+                                  SizedBox(
+                                    width: devicewidth * 0.699,
+                                    child: SizedBox(
+                                        height: deviceHeight * 0.1,
+                                        width: devicewidth * 0.1,
+                                        child: GridView.builder(
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount:
+                                            controller.pubSelectedFileCount.value,
+                                            gridDelegate:
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                                crossAxisCount: 1,
+                                                crossAxisSpacing: 15,
+                                                mainAxisSpacing: 10),
+                                            itemBuilder: (context, index) {
+                                              return Stack(children: [
+                                                Image.network("$baseResourceUrl${controller.pubListImagePath[index]['image_url']}",
+                                                  fit: BoxFit.cover,
+                                                  height: deviceHeight * 0.1,
+                                                  width: devicewidth * 0.2,
+                                                ),
+                                                InkWell(
+                                                    onTap: (() {
+                                                     if(controller.deleteListImageId.contains(controller.pubListImagePath[index]['id'])){
+                                                     }else {
+                                                       controller.deleteListImageId.add(controller.pubListImagePath[index]['id']);
+                                                     }
+                                                      controller.pubListImagePath.remove(
+                                                          controller
+                                                              .pubListImagePath[index]);
+                                                      controller
+                                                          .pubSelectedFileCount.value =
+                                                          controller
+                                                              .pubListImagePath.length;
+                                                      controller.onInit();
+                                                    }),
+                                                    child: CircleAvatar(
+                                                        radius: 10,
+                                                        backgroundColor:
+                                                        Colors.grey.shade400,
+                                                        child: const Icon(
+                                                          Icons.remove,
+                                                          size: 10,
+                                                          color: Colors.red,
+                                                        ))),
+                                              ]);
+                                            })),
+                                  ),
+                                  InkWell(
+                                    onTap: (() {
+                                      controller.selectedMultipleImage(id: releaseGood.id);
+                                    }),
+                                    child: Card(
+                                      elevation: 0,
+                                      shape: const  RoundedRectangleBorder(
+                                        side: BorderSide(
+                                          color: Colors.grey,
+                                        ),
+                                        borderRadius:
+                                        BorderRadius.all(Radius.circular(10)),
+                                      ),
+                                      child: SizedBox(
+                                          width: devicewidth * 0.2,
+                                          height: devicewidth * 0.2,
+                                          child: const  Center(
+                                            child: Icon(Icons.add_to_photos),
+                                          )),
+                                    ),
+                                  )
+                                ],
+                              );
+                            } else {
+                              return InkWell(
+                                onTap: (() {
+                                  controller.selectedMultipleImage(id: releaseGood.id);
+                                }),
+                                child: Card(
+                                  elevation: 0,
+                                  shape: const RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      color: Colors.grey,
+                                    ),
+                                    borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                  ),
+                                  child: SizedBox(
+                                    width: devicewidth * 0.80,
+                                    height: devicewidth * 0.2,
+                                    child: Column(
+                                      children: [
+                                        15.height,
+                                        const Icon(Icons.add_to_photos),
+                                        3.height,
+                                        const  Text('Ajouter des photos'),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                          }),
+                          50.height,
                           villeAndQuartierWidgets(),
                           const SizedBox(height: 10,),
                           propertyTypeWidgets(),
@@ -1164,10 +1307,10 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
 
                                   onPressed: () {
                                     showDatePicker(context: context,
-                                      initialDate:dateTimeChoosen,
-                                      firstDate: DateTime.now(),
-                                      lastDate: DateTime(2025),
-                                      locale: Locale("fr")
+                                        initialDate:dateTimeChoosen,
+                                        firstDate: DateTime.now(),
+                                        lastDate: DateTime(2025),
+                                        locale: Locale("fr")
                                     ).then((value) {
                                       dateTimeChoosen = value!;
                                       funct(() =>
@@ -1269,8 +1412,6 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
                                 border: Border(left: BorderSide(
                                     width: 5, color: AppColors.mainColor))
                             ),
-
-
                             child: Column(
                               children: [
                                 TextFormField(
@@ -1319,15 +1460,9 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
                                   },
 
                                 ),
-
                                 const SizedBox(height: 20.0,),
-
-
                                 Container(
-
                                     width: 215,
-
-
                                     child: StatefulBuilder(
                                         builder: (context, funct) {
                                           return CheckboxListTile(
@@ -1407,34 +1542,14 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
                                     fontSize: 16.0
                                 );
                               } else {
-
-
                                 prix = _prixController.text;
                                 localisation = _localisationController.text;
                                 commentaire = _commentaireController.text;
                                 contact = _contactController.text;
                                 conditions = _conditionController.text;
-                                //print('nbConvList:${nbConvList.length}');
-
-                               // print('newConvIDs: ${listOfConvenience.length}');
                                 recupConvIdsDeleted();
                                 recupConvIdsUpdated();
-
-                                //String convIDs = recupConvIdsAndCount();
-
-
-                               /*  print('checkedConvIds:$checkedConvIds');
-
-
-                                print('updatedConvIds:$updatedConvIds');
-                                print('nbConvUpdated:$nbConvUpdated');
-
-
-                                print('deletedConvIds:$deletedConvIds');
-*/
                                 newConvIDs=recupConvIdsAndCount();
-                               /* print(newConvIDs);
-                                print(newConvNb);*/
                                 if(newConvIDs.isEmpty && updatedConvIds.isEmpty){ // si aucune convenience n'est sélectionné
                                   Fluttertoast.showToast(
                                       msg: "Veuillez renseigner les commodités",
@@ -1447,15 +1562,11 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
                                       fontSize: 16.0
                                   );
                                 }else {
-
-                                    validateButtonEnabled=false;
-
-
-
+                                  validateButtonEnabled=false;
                                   _showSimpleDialog();
                                   update().then((value) async {
-
                                     if (value.statusCode == 200) {
+                                      controller.deleteListImageId.clear();
                                       releaseGoodPubOk = true;
                                       if (updatedConvIds.isNotEmpty) {
                                         for (var id in updatedConvIds) {
@@ -1464,7 +1575,6 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
                                           {
                                             if(value.statusCode != 200) {
                                               otherPubOk = false,
-
                                             }
                                           });
                                         }
@@ -1479,16 +1589,9 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
 
 
                                       if (otherPubOk) {
-                                        Fluttertoast.showToast(
-                                            msg: "Enregistré avec succès",
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity.CENTER,
-                                            timeInSecForIosWeb: 20,
-                                            backgroundColor: Colors.green,
-                                            textColor: Colors.white,
-                                            fontSize: 16.0
-                                        );
-                                      } else {
+                                        showMessage(type: "success", title : "Enregistrement réussi", message: "Votre bien a été enregistré avec succès");
+
+                                    } else {
                                         Fluttertoast.showToast(
                                             msg: "L'enregistrement de certaines informations a échoué. Vérifiez",
                                             toastLength: Toast.LENGTH_SHORT,
@@ -1512,22 +1615,18 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
                                           fontSize: 16.0
                                       );
 
-                                     /* setState(() {
+                                      /* setState(() {
 
-                                        validerCircularVisible = false;
-                                      });*/
+                                          validerCircularVisible = false;
+                                        });*/
                                     }
                                   }).whenComplete(() =>
                                   {
-                                  _dismissDialog(),
-                                  validateButtonEnabled = true,
+                                    _dismissDialog(),
+                                    validateButtonEnabled = true,
                                     if(releaseGoodPubOk){
-                                      Get.offAllNamed(
-                                          RouteName.mesPubs,
-
-                                      )
-                                      //context.go("/home/mesPubs")
-
+                                      showMessage(type: "success", title : "Enregistrement réussi", message: "Votre bien a été enregistré avec succès"),
+                                    //  Get.offAllNamed(RouteName.navigationView)
                                     }
                                   });
                                 }
@@ -1551,406 +1650,14 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
 
                     ),
                   )
-              );
-            }
-          },
+              ),
+            );
+          }
+        },
 
       ),
-
-      /*body: Container(
-        color: AppColors.mainColor2,
-        padding: const EdgeInsets.only(
-            top: 20, left: 15, right: 15),
-        child: Column(
-          children: [
-            Container(
-              height: 735,
-              padding: EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(45),
-                color: Colors.white,
-              ),
-              child: SingleChildScrollView(
-
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-
-                    //crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-
-                 villeAndQuartierWidgets(),
-                      const SizedBox(height: 10,),
-
-                      propertyTypeWidgets(),
-
-                      const SizedBox(height: 30.0,),
-                      StatefulBuilder(builder: (context, funct) {
-                        return ListTile(
-
-                          title: MediumText(text: "Chambre",),
-                          //title: MediumText(text: widget.title),
-                          trailing: SizedBox(
-                            width: 200,
-                            child: Wrap(alignment: WrapAlignment.start,
-
-                              children: [
-                                Row(
-                                  children: <Widget>[
-                                    IconButton(onPressed: () {
-                                      if (nbChambre > 0) {
-                                        funct(() {
-                                          nbChambre--;
-                                        });
-                                      }
-                                    }, icon: const Icon(Icons.remove)),
-                                    MediumText(text: "$nbChambre"),
-                                    IconButton(onPressed: () {
-                                      funct(() {
-                                        nbChambre++;
-                                      });
-                                    }, icon: const Icon(Icons.add)),
-
-
-                                  ],
-                                )
-                              ],),
-                          ),
-                        );
-                      }),
-
-                      const SizedBox(height: 30.0,),
-
-                  StatefulBuilder(builder: (context, funct) {
-                    return
-                      Container(
-
-                        height: 45,
-                       // width: 150,
-                        margin: const EdgeInsets.only(left: 20, right: 20),
-
-                        // padding: EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(35),
-                            color: AppColors.mainColor
-                        ),
-
-                        child: ElevatedButton(
-
-                          style: ElevatedButton.styleFrom(
-                            primary: AppColors.mainColor,
-                            // background
-                            onPrimary: Colors.white,
-                            // foreground
-                            elevation: 10,
-                            shape: BeveledRectangleBorder(),
-                            alignment: Alignment.centerRight,
-
-
-                          ),
-
-                          onPressed: () {
-                            showDatePicker(context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime(2025),
-                            ).then((value) {
-                              dateTimeChoosen = value!;
-                              funct(() =>
-                              {
-                                //dateDeLiberation = DateFormat.yMd().format(value!)
-                                dateDeLiberation = formatDatePresentation(value!.toString())
-                              });
-                            });
-                          },
-                          //child: MediumText(text: 'Date de Liberation:\n $dateDeLiberation'),
-                          child: Row(
-                            children: [
-                              Icon(Icons.date_range_rounded),
-                              SizedBox(width: 15,),
-                              Text('Libération prévue le: $dateDeLiberation'),
-                            ],
-
-                            //majDate(date)
-                          ),
-                        ),
-                        //child: SmallText(text: 'Se Connecter'),
-                        // child:TextButton(onPressed: (){}, child: SmallText(text: 'Connexion'),),
-                      );
-                  }),
-
-
-                      SizedBox(height: 25.0,),
-
-                     generateListOfConveniencesCard(),
-
-
-                      SizedBox(height: 40.0,),
-
-                      TextFormField(
-                        controller: _prixController..text=prix,
-                        decoration: const InputDecoration(
-                          labelText: "Prix",
-                          labelStyle: TextStyle(fontSize: 20,
-                              color: Colors.black54),
-                          // errorText: "Renseignez le prix",
-                          border: OutlineInputBorder(),
-
-                        ),
-                        keyboardType: TextInputType.number,
-                        maxLength: 7,
-                        // initialValue: '25000',
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter some text';
-                          }
-                          return null;
-                        },
-
-                      ),
-                      SizedBox(height: 20.0,),
-                      TextFormField(
-                        controller: _localisationController..text=localisation!,
-                        decoration: const InputDecoration(
-                          labelText: "Localisation. Ex: à proximité de, à 100m de",
-                          labelStyle: TextStyle(fontSize: 20,
-                              color: Colors.black54),
-                          border: OutlineInputBorder(),
-
-                        ),
-                        keyboardType: TextInputType.multiline,
-                        maxLength: 150,
-                        maxLines: 5,
-
-                      ),
-
-                      SizedBox(height: 20.0,),
-                      TextFormField(
-                        controller: _commentaireController..text=commentaire!,
-                        decoration: const InputDecoration(
-                          labelText: "Commentaires",
-                          labelStyle: TextStyle(fontSize: 20,
-                              color: Colors.black54),
-                          border: OutlineInputBorder(),
-
-                        ),
-                        keyboardType: TextInputType.multiline,
-                        maxLength: 150,
-                        maxLines: 5,
-
-                      ),
-
-                      SizedBox(height: 20.0,),
-
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border(left: BorderSide(
-                                width: 5, color: AppColors.mainColor))
-                        ),
-
-
-                        child: Column(
-                          children: [
-                            TextFormField(
-
-                              decoration: const InputDecoration(
-                                labelText: "Contact du bailleur",
-                                //errorText: "Renseignez le contact",
-                                labelStyle: TextStyle(
-                                    fontSize: 20, color: Colors.black54),
-                                border: OutlineInputBorder(),
-
-                              ),
-                              keyboardType: TextInputType.phone,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Renseignez le contact';
-                                }
-                                return null;
-                              },
-                              controller: _contactController..text=contact!,
-
-
-                            ),
-
-                            SizedBox(height: 20.0,),
-                            TextFormField(
-                              controller: _conditionController..text=conditions!,
-                              decoration: const InputDecoration(
-                                labelText: "Conditions du bailleur",
-                                // errorText: "Renseignez les conditions du bailleur",
-                                labelStyle: TextStyle(
-                                    fontSize: 20, color: Colors.black54),
-                                border: OutlineInputBorder(),
-
-                              ),
-                              keyboardType: TextInputType.multiline,
-                              maxLength: 150,
-                              maxLines: 5,
-
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Renseignez les conditions du bailleur';
-                                }
-                                return null;
-                              },
-
-                            ),
-
-                            SizedBox(height: 20.0,),
-
-
-                            Container(
-
-                                width: 215,
-
-
-                                child: StatefulBuilder(
-                                    builder: (context, funct) {
-                                      return CheckboxListTile(
-                                          value: _accord,
-                                          activeColor: Colors.pink,
-                                          title: MediumText(
-                                            text: 'J\'ai l\'accord du bailleur',
-                                            color: Colors.pink,),
-
-                                          onChanged: (v) {
-                                            funct(() {
-                                              _accord = v!;
-                                            });
-                                          });
-                                    })
-                            ),
-
-
-                          ],
-                        ),
-                      ),
-
-
-                        SizedBox(height: 15.0,),
-
-
-
-
-                      *//*
-
-
-                      StreamBuilder<Widget>(
-                          stream: null,
-                          builder: (context, snapshot) {
-                            return futureListPropertyType();
-                          }
-                      ),
-
-                      SizedBox(height: 30.0,),
-
-
-                      StreamBuilder<Widget>(
-                          stream: null,
-                          builder: (context, snapshot) {
-                            return datePicker();
-                          }
-                      ),
-
-
-                      SizedBox(height: 25.0,),
-
-
-                      StreamBuilder<Widget>(
-                          stream: null,
-                          builder: (context, snapshot) {
-                            return chambreTile();
-                          }
-                      ),
-
-                     *//*
-
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            SizedBox(height: 15.0,),
-            Container(
-              height: 45,
-              width: 300,
-              margin: const EdgeInsets.only(left: 20, right: 20),
-              // padding: EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(45),
-                  color: AppColors.mainColor
-              ),
-
-              child: ElevatedButton(
-
-                style: ElevatedButton.styleFrom(
-                    primary: AppColors.mainColor, // background
-                    onPrimary: Colors.white, // foreground
-                    elevation: 10,
-                    shape: StadiumBorder()
-                ),
-
-                onPressed: () {
-                  _formKey.currentState!.validate();
-                  if (!_accord) {
-                    Fluttertoast.showToast(
-                        msg: "L'accord du bailleur est requis",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.CENTER,
-                        timeInSecForIosWeb: 20,
-                        backgroundColor: Colors.red,
-                        textColor: Colors.white,
-                        fontSize: 16.0
-                    );
-                  } else {
-                    //prix = int.parse(_prixController.text);
-                    prix = _prixController.text;
-                    localisation = _localisationController.text;
-                    commentaire = _commentaireController.text;
-                    contact = _contactController.text;
-                    conditions = _conditionController.text;
-
-
-                    enregistrer().then((value) {
-                     *//* if (value.statusCode == 201) {
-                        Fluttertoast.showToast(
-                            msg: "Publié avec succès",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.CENTER,
-                            timeInSecForIosWeb: 20,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0
-                        );
-
-                        context.go('/mainPage');
-                      } else {
-                        Fluttertoast.showToast(
-                            msg: "Echec de publication.",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.CENTER,
-                            timeInSecForIosWeb: 20,
-                            backgroundColor: Colors.red,
-                            textColor: Colors.white,
-                            fontSize: 16.0
-                        );
-                      }*//*
-
-
-                    });
-                  }
-                },
-                child: Text('Valider'),
-              ),
-            ),
-
-          ],
-        ),
-      ),*/
     );
+    });
   }
 
     @override
@@ -1959,11 +1666,6 @@ class _UpdateReleaseGoodState extends State<UpdateReleaseGood> {
     validateButtonEnabled=true; validerCircularVisible=false;
   }
 }
-
-
-
-const baseUrl = apiUrl;
-
 List<String> listOfCityName = ['Choisir la ville'];
 List<int> listOfCityId = <int>[];
 
@@ -1991,7 +1693,6 @@ TextEditingController _contactController = TextEditingController();
 TextEditingController _conditionController = TextEditingController();
 TextEditingController _localisationController = TextEditingController();
 TextEditingController _commentaireController = TextEditingController();
-//TextEditingController _chambreController=TextEditingController();
 
 String prixErreurMsg = "",
     contactErreurMsg = "";
@@ -2028,13 +1729,7 @@ List<int> checkedConvIds=[];
 List<int> rgcIds=[];
 
 int nbChambre=0,nbConvPlusOrMinus=0;
-
 bool otherPubOk=true, releaseGoodPubOk=true;
-
-/*String villeSelectionnee = 'Choisir la ville',
-    quartierSelectionne = 'Choisir le quartier',
-    typeSelectionne = 'Choisir le type';*/
-
 late String villeSelectionnee, quartierSelectionne , typeSelectionne ;
 
 String? localisation, dateDeLiberation;

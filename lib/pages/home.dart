@@ -1,14 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:front_ds/utils/colors.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../configs/app_routes.dart';
 import '../configs/http_config.dart';
 import '../configs/session_data.dart';
@@ -38,15 +35,12 @@ class _HomeState extends State<Home> {
       headers: headers,
     );
 
+
     if (response2.statusCode == 200) {
       final List result = jsonDecode(response2.body)['data'];
       listOfReleaseGoodsInitial =
           result.map((e) => ReleaseGoodModel3.fromJson(e)).toList();
-    } else {
-      //   print('response failed:${response2.statusCode} - ${response2.reasonPhrase}');
-      throw Exception(response2.reasonPhrase);
     }
-
     /* setState(() {
 
     });*/
@@ -236,12 +230,18 @@ class _HomeState extends State<Home> {
         connectivity = true;
       } else {
         connectivity = false;
-
+      }
+    });
+    hasInternetConnection.then((val) async {
+      if (val) {
+        connectivity = true;
+      } else {
+        connectivity = false;
         Fluttertoast.showToast(
             msg: 'Vérifiez votre connexion internet',
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 10,
+            timeInSecForIosWeb: 20,
             backgroundColor: Colors.blue,
             textColor: Colors.white,
             fontSize: 16.0);

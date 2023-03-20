@@ -23,7 +23,6 @@ class SessionData {
 
   static setLoggedInStatus(bool status) {
     box.write('isLoggedIn', status);
-  //  log("SetLoggedInStatus ==> ${box.read('isLoggedIn')}");
   }
   static saveToken(data) {return box.write("token", data);}
   static getToken() {return box.read("token");}

@@ -91,7 +91,7 @@ class EditProfilController extends GetxController {
     }
   }
 
-  void deconnexion() async {
+  void logOut() async {
     var request = await UserServices.existToApp();
     if (request.ok) {
       Get.offAllNamed(

@@ -229,8 +229,10 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
     'Accept': 'application/json',
     'Authorization': 'Bearer $token',
     });
-    request.files.add(
-        await http.MultipartFile.fromPath('image_url', controller.imageFile!.path));
+    if(controller.imageFile != null){
+      request.files.add(
+          await http.MultipartFile.fromPath('image_url', controller.imageFile!.path));
+    }
     if(controller.listImagePath.isNotEmpty){
       for (String path in controller.listImagePath) {
         request.files.add(
@@ -249,7 +251,6 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
     };
 
     String fullUrl = '${baseUrl}/v1/quartiers-search/?&setcity=$cityId';
-
     final uri = Uri.parse(fullUrl);
     http.Response response2 = await http.get(uri, headers: headers);
 
@@ -275,38 +276,16 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
         };
-
         // var city_id=1;
         String fullUrl = '${baseUrl}/v1/property-types';
-
         // print(fullUrl);
         final uri = Uri.parse(fullUrl);
         http.Response response2 = await http.get(uri, headers: headers);
-
         var data = jsonDecode(response2.body.toString());
-
-        // print('${data['id']}');
-
         PropertyTypeModel propertyTypeModel = PropertyTypeModel.fromJson(data);
-
-        /*  List<String> retreiverListOfCityName=['Choisir le type'];
-      List<int> retreiverListOfCityId=[];
-      for (var element in (data as List)) {
-        retreiverListOfCityName.add(element['intitule']);
-        retreiverListOfCityId.add(element['id']);
-      }
-
-      //setState(() {
-      listOfCityName=retreiverListOfCityName;
-      listOfCityId=retreiverListOfCityId;*/
-        //});
-
-        //majListQuartier(retreiverListOfCityName);
-
         listOfProperty = ['Choisir le type'];
         propertyTypeModel.data!.removeAt(6);
         propertyTypeModel.data!.removeAt(6);
-
         for (var element in propertyTypeModel.data!) {
           listOfProperty.add(element.intitule!);
           listOfPropertyId.add(element.id!.toInt());
@@ -399,7 +378,7 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
           'Authorization': 'Bearer $token',
         };
 
-        String fullUrl = '${baseUrl}/v1/city-name/$id';
+        String fullUrl = '$baseUrl/v1/city-name/$id';
 
         //print(fullUrl);
         final uri = Uri.parse(fullUrl);
@@ -635,8 +614,39 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
         .addAll(generateListOfConvenienceCheckBox(listOfConvenience));
     return listOfConvenience;
   }
-
   Widget generateListOfConveniencesCard() {
+    return FutureBuilder(
+        future: retreiveConveniences(),
+        builder: (context, snapshot) {
+          return Container(
+            height: 300,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(45),
+                border: Border.all(
+                    color: Colors.indigo,
+                    width: 2,
+                    style: BorderStyle.solid)),
+            child: Scrollbar(
+              thumbVisibility: true,
+              //always show scrollbar
+              thickness: 7,
+              //width of scrollbar
+              radius: const Radius.circular(20),
+              //corner radius of scrollbar
+              scrollbarOrientation: ScrollbarOrientation.right,
+              controller: scrollController,
+
+              child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: Column(
+                    children: listOfCardItemPlusOrMinus,
+                  )),
+            ),
+          );
+        });
+  }
+/*  Widget generateListOfConveniencesCard() {
     return FutureBuilder(
         future: retreiveConveniences(),
         builder: (context, snapshot) {
@@ -687,7 +697,7 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
               }
           }
         });
-  }
+  }*/
 
   void _showSimpleDialog() {
     showDialog(
@@ -766,7 +776,7 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
                           ),
                           child: SizedBox(
                             width: devicewidth * 0.80,
-                            height: devicewidth * 0.2,
+                            height: deviceHeight * 0.1,
                             child: InkWell(
                               onTap: (() {
                                 controller.getImage();
@@ -785,7 +795,7 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
                       if (controller.imageFile != null)
                         Container(
                           width: devicewidth * 0.80,
-                          height: devicewidth * 0.2,
+                          height: deviceHeight * 0.2,
                           decoration: BoxDecoration(
                               image: controller.imageFile == null
                                   ? null
@@ -1191,7 +1201,7 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
                                       title: "Publication reussi",
                                       message: "Publié avec succès");
                                   Get.offAllNamed(
-                                    RouteName.mesPubs,
+                                    RouteName.myPubView,
                                   );
                                 } else {
                                   showMessage(

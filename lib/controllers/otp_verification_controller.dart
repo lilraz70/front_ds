@@ -53,27 +53,34 @@ class OtpVerificationController extends GetxController {
             message: "Numéro de téléphone vérifier avec succèss");
         var request =
         await UserServices.getUserByPhone(telephone: phoneNumber);
+        print(request.data);
         if (request.ok) {
-          Users.User user = Users.User(
-            id: request.data['data']['id'],
-            name: request.data['data']['name'],
-            pseudo: request.data['data']['pseudo'],
-            telephone: request.data['data']['telephone'],
-            photo_de_profil: request.data['data']['photo_de_profil'],
-          );
-          SessionData.saveUser(user.toJson());
-          SessionData.saveToken(request.data['token']);
-          SessionData.setLoggedInStatus(true);
+          if(request.data['success'] == true){
+            Users.User user = Users.User(
+              id: request.data['data']['id'],
+              name: request.data['data']['name'],
+              pseudo: request.data['data']['pseudo'],
+              telephone: request.data['data']['telephone'],
+              photo_de_profil: request.data['data']['photo_de_profil'],
+            );
+            SessionData.saveUser(user.toJson());
+            SessionData.saveToken(request.data['data']['token']);
+            SessionData.setLoggedInStatus(true);
 
-          Get.offAllNamed(
-            RouteName.navigationView,
-          );
+            Get.offAllNamed(
+              RouteName.navigationView,
+            );
+          } else {
+            Get.offAllNamed(RouteName.profileInformation, arguments: {
+              'type':"phone",
+              'phoneNumber': phoneNumber,
+              'id':""});
+          }
         } else {
-          Get.offAllNamed(RouteName.profileInformation, arguments: {
-            'type':"phone",
-            'phoneNumber': phoneNumber,
-            'id':""
-          });
+          showMessage(
+              type: 'error',
+              title: "Authentification echouée ",
+              message: "Veuillez réeesayer");
         }
       } else {
         showMessage(

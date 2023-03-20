@@ -67,22 +67,16 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
                         fontSize: 16.0);
                   } else {
                     Get.offAllNamed(RouteName.searchReleaseGood, arguments: {
-                      "cityId": cityId.toString(),
-                      "quartierId": quartierId.toString(),
-                      "propertyId": propertyId.toString(),
+                      "cityId": cityId,
+                      "quartierId": quartierId,
+                      "propertyId": propertyId,
                       "villeSelectionnee": villeSelectionee,
                       "quartierSelectionne": quartierSelectionne,
                       "typeSelectionne": typeSelectionne
                     });
-                    /*context.pushNamed('searchReleaseGood', params: {"cityId":cityId.toString(),
-                                                                "quartierId":quartierId.toString(),
-                                                                  "propertyId":propertyId.toString(),
-                                                                  "villeSelectionnee":villeSelectionee,
-                                                                  "quartierSelectionne":quartierSelectionne,
-                                                                  "typeSelectionne":typeSelectionne});*/
                   }
                 },
-                child: const Text('Valider'))
+                child: const Text('Rechercher'))
           ],
         ),
       ),

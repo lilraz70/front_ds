@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../configs/session_data.dart';
 class ReleaseGoodController extends GetxController{
 
+  String? updateImageFile;
   File? imageFile;
   final picker = ImagePicker();
   static Map authUser =  SessionData.getUser();

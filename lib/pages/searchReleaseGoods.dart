@@ -4,11 +4,15 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:month_year_picker/month_year_picker.dart';
+import 'package:nb_utils/nb_utils.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
+import '../configs/app_routes.dart';
 import '../configs/http_config.dart';
 import '../models/Conveniences.dart';
 import '../models/PropertyTypeModel.dart';
@@ -19,48 +23,39 @@ import '../widgets/cardItemPlusOuMoins2.dart';
 import '../widgets/displayReleaseGoodWidget.dart';
 import '../widgets/titleSmallText.dart';
 
-
 class SearchReleaseGoods extends StatefulWidget {
-
-  final cityId, quartierId,propertyId,villeSelectionnee,quartierSelectionne,typeSelectionne;
-
-  const SearchReleaseGoods({Key? key, this.cityId, this.quartierId, this.propertyId, this.villeSelectionnee, this.quartierSelectionne, this.typeSelectionne}) : super(key: key);
+  const SearchReleaseGoods({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<SearchReleaseGoods> createState() => _SearchReleaseGoodsState();
 }
 
 class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
+  dynamic cityId = Get.arguments["cityId"];
+  dynamic quartierId = Get.arguments["quartierId"];
+  dynamic propertyId = Get.arguments["propertyId"];
+  dynamic villeSelectionee = Get.arguments["villeSelectionnee"];
+  dynamic quartierSelectionne = Get.arguments["quartierSelectionne"];
+  dynamic typeSelectionne = Get.arguments["typeSelectionne"];
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    cityId=int.parse(widget.cityId);
-    quartierId=int.parse(widget.quartierId);
-    propertyId=int.parse(widget.propertyId);
-    villeSelectionee=widget.villeSelectionnee;
-    quartierSelectionne=widget.quartierSelectionne;
-    typeSelectionne=widget.typeSelectionne;
-    //print(typeSelectionne);
-    convenienceWidget=generateScrollableConveniencesCard();
-    chargerLesQuartiers=true;
+    convenienceWidget = generateScrollableConveniencesCard();
+    chargerLesQuartiers = true;
     retreiveDropdownQuartierInfo().then((value) {
       majListQuartier(retreiverListOfQuartierName);
-      //listOfQuartierName=retreiverListOfQuartierName;
-      chargerLesQuartiers=false;
-      if(quartierId!=0) { // au moins un quartier a été sélectionné
-        quartierSelectionne=listOfQuartierName.elementAt(listOfQuartierId.indexOf(quartierId)+1);
+      chargerLesQuartiers = false;
+      if (quartierId != 0) {
+        quartierSelectionne = listOfQuartierName
+            .elementAt(listOfQuartierId.indexOf(quartierId) + 1);
       }
     });
 
     WidgetsBinding.instance
-        .addPostFrameCallback((_) async => {
-      token,
-      user['id']
-    }
-
-    );
+        .addPostFrameCallback((_) async => {token, user['id']});
   }
 
 /* void initialiseDrawer(){
@@ -77,12 +72,9 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
    });
  }*/
 
-
-
-
-
   Future retreiveDropdownQuartierInfo() async {
-    if (chargerLesQuartiers ) { //juste pour empêcher d'executer la requête serveur tant qu'une ville n'est pas sélectionnée
+    if (chargerLesQuartiers) {
+      //juste pour empêcher d'executer la requête serveur tant qu'une ville n'est pas sélectionnée
 
       Map<String, String> headers = {
         "Content-Type": "application/json",
@@ -93,13 +85,11 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
 // var city_id=1;
       String fullUrl = '${baseUrl}v1/quartiers-search/?&setcity=$cityId';
 
-    //  print(fullUrl);
+      //  print(fullUrl);
       final uri = Uri.parse(fullUrl);
       http.Response response2 = await http.get(uri, headers: headers);
 
-
       var data = jsonDecode(response2.body.toString());
-
 
       retreiverListOfQuartierName = ['Tous les quartiers'];
       retreiverListOfQuartierId = [];
@@ -107,7 +97,6 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
         retreiverListOfQuartierName.add(element['intitule']);
         retreiverListOfQuartierId.add(element['id']);
       }
-
 
       listOfQuartierId = retreiverListOfQuartierId;
       //majListQuartier(retreiverListOfQuartierName);
@@ -117,56 +106,47 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
     }
   }
 
-
-
   void majListQuartier(List<String> list) {
-      listOfQuartierName = list;
+    listOfQuartierName = list;
   }
 
-
-
-  Widget releaseGoodWidget(){
+  Widget releaseGoodWidget() {
     Future retreiveReleaseGood(String fullUrl) async {
-      if(initialize) {
+      if (initialize) {
+        Map<String, String> headers = {
+          "Content-Type": "application/json",
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        };
+        http.Response response2 = await http.get(
+          Uri.parse(fullUrl),
+          headers: headers,
+        );
 
-      Map<String, String> headers = {
-        "Content-Type": "application/json",
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      };
-      http.Response response2 = await http.get(
-        Uri.parse(fullUrl),
-        headers: headers,
-      );
+        //  print(fullUrl);
 
+        if (response2.statusCode == 200) {
+          final List result = jsonDecode(response2.body)['data'];
+          listOfReleaseGoodsInitial =
+              result.map((e) => ReleaseGoodModel3.fromJson(e)).toList();
+          initialize = false;
+        } else {
+          //return retreiveReleaseGood(fullUrl, token);
+          //throw Exception(response2.reasonPhrase);
+        }
 
-    //  print(fullUrl);
+        listOfReleaseGoodsToDisplay = triGeneral();
 
-      if(response2.statusCode==200) {
-        final List result = jsonDecode(response2.body)['data'];
-        listOfReleaseGoodsInitial= result.map((e) => ReleaseGoodModel3.fromJson(e)).toList();
-        initialize = false;
-      }else{
-
-        //return retreiveReleaseGood(fullUrl, token);
-        //throw Exception(response2.reasonPhrase);
-      }
-
-
-      listOfReleaseGoodsToDisplay=triGeneral();
-
-      setState(() {
-        nbOfResult=listOfReleaseGoodsToDisplay.length;
-      });
-      return response2;
-      }else{
+        setState(() {
+          nbOfResult = listOfReleaseGoodsToDisplay.length;
+        });
+        return response2;
+      } else {
         return 'ok';
       }
     }
 
-
     return FutureBuilder(
-
         future: retreiveReleaseGood(fullUrl),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
@@ -177,7 +157,7 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
             case ConnectionState.done:
             default:
               if (snapshot.hasError) {
-               // print(snapshot.error);
+                // print(snapshot.error);
                 return Center(
                   child: Text('Erreur: ${snapshot.error}'),
                 );
@@ -189,15 +169,11 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
               }
           }
         });
-
   }
 
   Widget villeAndQuartierWidgets() {
-
     Future retreiveDropdownCitiesInfo(int id) async {
       if (listOfCityName.length == 1) {
-
-
         Map<String, String> headers = {
           "Content-Type": "application/json",
           'Accept': 'application/json',
@@ -206,10 +182,9 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
 
         String fullUrl = '${baseUrl}v1/city-name/$id';
 
-       // print(fullUrl);
+        // print(fullUrl);
         final uri = Uri.parse(fullUrl);
         http.Response response2 = await http.get(uri, headers: headers);
-
 
         var data = jsonDecode(response2.body.toString());
 
@@ -232,6 +207,7 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
         return listOfCityName;
       }
     }
+
     return StatefulBuilder(builder: (context, funct) {
       void majListQuartier(List<String> list) {
         funct(() {
@@ -239,10 +215,8 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
         });
       }
 
-
       Widget futureListVille() {
         return FutureBuilder(
-
             future: retreiveDropdownCitiesInfo(1),
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
@@ -250,98 +224,81 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-
                       DropdownButton<String>(
                           icon: const Icon(Icons.arrow_downward),
                           items: const [],
                           hint: const Text('Chargement...'),
                           iconSize: 5,
                           elevation: 5,
-                          onChanged: (String? newValue) {
-
-                          }
-                      ),
-
-                      const SizedBox(height:15, width:15, child: CircularProgressIndicator(color: Colors.blue)),
+                          onChanged: (String? newValue) {}),
+                      const SizedBox(
+                          height: 15,
+                          width: 15,
+                          child: CircularProgressIndicator(color: Colors.blue)),
                     ],
                   );
                 case ConnectionState.done:
                 default:
                   if (snapshot.hasError) {
-                  //  print(snapshot.error);
+                    //  print(snapshot.error);
                     return Center(
                       child: Text('Erreur: ${snapshot.error}'),
                     );
                   } else if (snapshot.hasData) {
-
-                    if(firstDrawerDisplay) {
-                      villeSelectionee=listOfCityName.elementAt(listOfCityId.indexOf(cityId)+1);
+                    if (firstDrawerDisplay) {
+                      villeSelectionee = listOfCityName
+                          .elementAt(listOfCityId.indexOf(cityId) + 1);
                     }
-                    return
-                      StatefulBuilder(builder: (context, funct) {
+                    return StatefulBuilder(builder: (context, funct) {
+                      return DropdownButton<String>(
+                        icon: const Icon(Icons.arrow_downward),
+                        hint: const Text("Choisir la ville"),
+                        iconSize: 5,
+                        elevation: 5,
+                        alignment: Alignment.center,
+                        value: villeSelectionee,
+                        style: const TextStyle(
+                            color: Colors.blueGrey, fontSize: 16),
+                        underline: Container(
+                          height: 2,
+                          color: AppColors.mainColor,
+                        ),
+                        onChanged: (String? newValue) {
+                          cityId = listOfCityId[listOfCityName
+                                  .indexOf(newValue!) -
+                              1]; //-1 parce que listOfCityName commence avant listOfCityId
 
-                        return DropdownButton<String>(
-                          icon: const Icon(Icons.arrow_downward),
-                          hint: const Text("Choisir la ville"),
-                          iconSize: 5,
-                          elevation: 5,
-                          alignment: Alignment.center,
-                          value: villeSelectionee,
-                          style: const TextStyle(
-                              color: Colors.blueGrey,
-                              fontSize: 16
-                          ),
-                          underline: Container(
-                            height: 2,
-                            color: AppColors.mainColor,
-                          ),
+                          chargerLesQuartiers = true;
+                          retreiveDropdownQuartierInfo().then((value) {
+                            majListQuartier(retreiverListOfQuartierName);
+                            //listOfQuartierName=retreiverListOfQuartierName;
+                            chargerLesQuartiers = false;
+                          });
 
-                          onChanged: (String? newValue) {
-                            cityId =
-                            listOfCityId[listOfCityName.indexOf(newValue!) -
-                                1]; //-1 parce que listOfCityName commence avant listOfCityId
+                          villeSelectionee = newValue;
+                          quartierSelectionne = 'Tous les quartiers';
+                          //});
 
-                            chargerLesQuartiers=true;
-                            retreiveDropdownQuartierInfo().then((value) {
-                              majListQuartier(retreiverListOfQuartierName);
-                              //listOfQuartierName=retreiverListOfQuartierName;
-                              chargerLesQuartiers=false;
-                            });
-
-
-
-                            villeSelectionee = newValue;
-                            quartierSelectionne = 'Tous les quartiers';
-                            //});
-
-                            // villeSelectionee=newValue;
-                          },
-
-                          items: listOfCityName.map<DropdownMenuItem<String>>((
-                              String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-
-
-
-                        );
-                      }
+                          // villeSelectionee=newValue;
+                        },
+                        items: listOfCityName
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
                       );
+                    });
                   } else {
-                    return
-                      const Center(child: Text('No data'));
+                    return const Center(child: Text('No data'));
                   }
               }
-            }
-        );
+            });
       }
 
       Widget futureListQuartier() {
         return FutureBuilder(
-
             future: retreiveDropdownQuartierInfo(),
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
@@ -349,96 +306,84 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-
                       DropdownButton<String>(
                           icon: const Icon(Icons.arrow_downward),
                           items: const [],
                           hint: const Text('Chargement...'),
                           iconSize: 5,
                           elevation: 5,
-                          onChanged: (String? newValue) {
-
-                          }
-                      ),
-
-                      const SizedBox(height:15, width:15, child: CircularProgressIndicator(color: Colors.blue)),
+                          onChanged: (String? newValue) {}),
+                      const SizedBox(
+                          height: 15,
+                          width: 15,
+                          child: CircularProgressIndicator(color: Colors.blue)),
                     ],
                   );
                 case ConnectionState.done:
                 default:
                   if (snapshot.hasError) {
-                  //  print(snapshot.error);
+                    //  print(snapshot.error);
 
                     return Center(
                       child: Text('Erreur: ${snapshot.error}'),
                     );
                   } else if (snapshot.hasData) {
+                    return StatefulBuilder(builder: (context, funct) {
+                      return DropdownButton<String>(
+                        icon: const Icon(Icons.arrow_downward),
+                        iconSize: 5,
+                        elevation: 5,
+                        alignment: Alignment.center,
+                        style: const TextStyle(
+                            color: Colors.blueGrey, fontSize: 16),
+                        value: quartierSelectionne,
+                        underline: Container(
+                          height: 2,
+                          color: AppColors.mainColor,
+                        ),
+                        onChanged: (String? newValue) {
+                          if (newValue!.compareTo('Tous les quartiers') != 0) {
+                            quartierId = listOfQuartierId[
+                                listOfQuartierName.indexOf(newValue) - 1];
+                          }
 
+                          funct(() => {quartierSelectionne = newValue});
+                        },
+                        items: listOfQuartierName
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Align(
+                                alignment: Alignment.center,
+                                child: Text(value)),
 
-
-
-                    return  StatefulBuilder(builder: (context, funct) {
-                        return DropdownButton<String>(
-                          icon: const Icon(Icons.arrow_downward),
-                          iconSize: 5,
-                          elevation: 5,
-                          alignment: Alignment.center,
-                          style: const TextStyle(
-                              color: Colors.blueGrey,
-                              fontSize: 16
-                          ),
-                         value: quartierSelectionne,
-                          underline: Container(
-                            height: 2,
-                            color: AppColors.mainColor,
-                          ),
-                          onChanged: (String? newValue) {
-
-                            if(newValue!.compareTo('Tous les quartiers')!=0) {
-                              quartierId =listOfQuartierId[listOfQuartierName.indexOf(newValue) - 1];
-                            }
-
-                            funct(() =>
-                            {
-                              quartierSelectionne = newValue
-                            });
-
-
-                          },
-                          items: listOfQuartierName.map<
-                              DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Align(alignment: Alignment.center, child: Text(value)),
-
-                              //Text(value,textAlign: TextAlign.center,),
-                            );
-                          }).toList(),
-
-                        );
-                      });
+                            //Text(value,textAlign: TextAlign.center,),
+                          );
+                        }).toList(),
+                      );
+                    });
                   } else {
-                    return
-                      const Center(child: Text('No data'));
+                    return const Center(child: Text('No data'));
                   }
               }
-            }
-        );
+            });
       }
-      return Column(children: [
-        futureListVille(),
-        const SizedBox(height: 5,),
-        futureListQuartier()
-      ],);
+
+      return Column(
+        children: [
+          futureListVille(),
+          const SizedBox(
+            height: 5,
+          ),
+          futureListQuartier()
+        ],
+      );
     });
   }
 
   Widget futureListPropertyType() {
-
     Future retreiveDropdownInfoPropertyType() async {
       if (listOfProperty.length == 1) {
-
-
         Map<String, String> headers = {
           "Content-Type": "application/json",
           'Accept': 'application/json',
@@ -448,14 +393,12 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
         // var city_id=1;
         String fullUrl = '${baseUrl}v1/property-types';
 
-     //   print(fullUrl);
+        //   print(fullUrl);
         final uri = Uri.parse(fullUrl);
         http.Response response2 = await http.get(uri, headers: headers);
 
-
         var data = jsonDecode(response2.body.toString());
         PropertyTypeModel propertyTypeModel = PropertyTypeModel.fromJson(data);
-
 
         /*  List<String> retreiverListOfCityName=['Choisir le type'];
       List<int> retreiverListOfCityId=[];
@@ -486,7 +429,6 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
     }
 
     return FutureBuilder(
-
         future: retreiveDropdownInfoPropertyType(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
@@ -494,179 +436,173 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
                   DropdownButton<String>(
                       icon: const Icon(Icons.arrow_downward),
                       items: const [],
                       hint: const Text('Chargement...'),
                       iconSize: 5,
                       elevation: 5,
-                      onChanged: (String? newValue) {
-
-                      }
-                  ),
-
-                  const SizedBox(height:15, width:15, child: CircularProgressIndicator(color: Colors.blue)),
+                      onChanged: (String? newValue) {}),
+                  const SizedBox(
+                      height: 15,
+                      width: 15,
+                      child: CircularProgressIndicator(color: Colors.blue)),
                 ],
               );
             case ConnectionState.done:
             default:
               if (snapshot.hasError) {
-              //  print(snapshot.error);
+                //  print(snapshot.error);
 
                 return Center(
                   child: Text('Erreur: ${snapshot.error}'),
                 );
               } else if (snapshot.hasData) {
-
-                if(firstDrawerDisplay) {
-                  typeSelectionne=listOfProperty.elementAt(listOfPropertyId.indexOf(propertyId)+1); //+1 parce qu'il ya choisir le type en 1er. on pourra bien l'enlever après
+                if (firstDrawerDisplay) {
+                  typeSelectionne = listOfProperty.elementAt(listOfPropertyId
+                          .indexOf(propertyId) +
+                      1); //+1 parce qu'il ya choisir le type en 1er. on pourra bien l'enlever après
                 }
 
-                firstDrawerDisplay=false;
-                return
-                  StatefulBuilder(builder: (context, funct) {
-                    return DropdownButton<String>(
-                      icon: const Icon(Icons.arrow_downward),
-                      //items: listOfCity.cast(),
-                      iconSize: 5,
-                      elevation: 5,
-                      alignment: Alignment.center,
-                      style: const TextStyle(
-                          color: Colors.blueGrey,
-                          fontSize: 16
-                      ),
-                      value: typeSelectionne,
-                      underline: Container(
-                        height: 2,
-                        color: AppColors.mainColor,
-                      ),
-                      onChanged: (String? newValue) {
-                        propertyId =
-                        listOfPropertyId[listOfProperty.indexOf(newValue!) - 1];
+                firstDrawerDisplay = false;
+                return StatefulBuilder(builder: (context, funct) {
+                  return DropdownButton<String>(
+                    icon: const Icon(Icons.arrow_downward),
+                    //items: listOfCity.cast(),
+                    iconSize: 5,
+                    elevation: 5,
+                    alignment: Alignment.center,
+                    style:
+                        const TextStyle(color: Colors.blueGrey, fontSize: 16),
+                    value: typeSelectionne,
+                    underline: Container(
+                      height: 2,
+                      color: AppColors.mainColor,
+                    ),
+                    onChanged: (String? newValue) {
+                      propertyId = listOfPropertyId[
+                          listOfProperty.indexOf(newValue!) - 1];
 
+                      funct(() => {typeSelectionne = newValue});
 
-                        funct(() =>
-                        {
-                          typeSelectionne = newValue
-                        });
-
-
-                        //quartierSelectionne=newValue;
-
-                      },
-                      items: listOfProperty.map<DropdownMenuItem<String>>((
-                          String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-
-                    );
-                  });
+                      //quartierSelectionne=newValue;
+                    },
+                    items: listOfProperty
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  );
+                });
               } else {
-                return
-                  const Center(child: Text('No data'));
+                return const Center(child: Text('No data'));
               }
           }
-        }
-    );
+        });
   }
 
-  List<ReleaseGoodModel3> triChambre(List<ReleaseGoodModel3> listOfReleaseGoodModel, num nb) {
+  List<ReleaseGoodModel3> triChambre(
+      List<ReleaseGoodModel3> listOfReleaseGoodModel, num nb) {
     final listTri = listOfReleaseGoodModel.where((element) {
       return element.nbChambre == nb;
     }).toList();
 
-
     return listTri;
   }
 
-  List<ReleaseGoodModel3> triPrix(List<ReleaseGoodModel3> listOfReleaseGoodModel) {
-
-
+  List<ReleaseGoodModel3> triPrix(
+      List<ReleaseGoodModel3> listOfReleaseGoodModel) {
     if (_prixController.text.isNotEmpty) {
-      num prix=num.parse(_prixController.text);
+      num prix = num.parse(_prixController.text);
       final listTri = listOfReleaseGoodModel.where((element) {
         return int.parse(element.cout!) <= prix;
       }).toList();
 
       return listTri;
-    }else{
+    } else {
       return listOfReleaseGoodModel;
     }
   }
 
-  List<ReleaseGoodModel3> triPeriode(List<ReleaseGoodModel3> listOfReleaseGoodModel) {
-
-    if(periodActive) {
+  List<ReleaseGoodModel3> triPeriode(
+      List<ReleaseGoodModel3> listOfReleaseGoodModel) {
+    if (periodActive) {
       final listTri = listOfReleaseGoodModel.where((element) {
         DateTime dateTimeSortiPrevu = DateTime.parse(element.dateSortiPrevu!);
         return dateTimeSortiPrevu.year == dateTimeChoosen.year &&
             dateTimeSortiPrevu.month == dateTimeChoosen.month;
       }).toList();
 
-
       return listTri;
-    }else{
+    } else {
       return listOfReleaseGoodModel;
     }
   }
 
-  List<ReleaseGoodModel3> triConvenience(List<ReleaseGoodModel3> listOfReleaseGoodModel) {
+  List<ReleaseGoodModel3> triConvenience(
+      List<ReleaseGoodModel3> listOfReleaseGoodModel) {
     List<int> listOfReleaseGoodConvIds = <int>[];
     List<int> listOfReleaseGoodConvNbs = <int>[];
-    bool checkCorrespondance(){
-      bool correspondance=true;
+    bool checkCorrespondance() {
+      bool correspondance = true;
 
-      for(var id in listOfChoosenConvenienceIds){
-        if(!listOfReleaseGoodConvIds.contains(id)){
-          correspondance=false;
+      for (var id in listOfChoosenConvenienceIds) {
+        if (!listOfReleaseGoodConvIds.contains(id)) {
+          correspondance = false;
           break;
-        }else{ // si l'id choisi est dans les conveniences du good
+        } else {
+          // si l'id choisi est dans les conveniences du good
           //verifier le nombre à la position de id
-          if(listOfChoosenConvenienceNbs.elementAt(listOfChoosenConvenienceIds.indexOf(id))>listOfReleaseGoodConvNbs.elementAt(listOfReleaseGoodConvIds.indexOf(id))){
-            correspondance=false;
+          if (listOfChoosenConvenienceNbs
+                  .elementAt(listOfChoosenConvenienceIds.indexOf(id)) >
+              listOfReleaseGoodConvNbs
+                  .elementAt(listOfReleaseGoodConvIds.indexOf(id))) {
+            correspondance = false;
           }
         }
       }
       return correspondance;
     }
+
     final listTri = listOfReleaseGoodModel.where((releaseGood) {
-
-
       listOfReleaseGoodConvIds.clear();
       listOfReleaseGoodConvNbs.clear();
 
-         for(int i=0;i<releaseGood.releasegoodconvenience!.length;i++){
-        listOfReleaseGoodConvIds.add(int.parse(releaseGood.releasegoodconvenience!.elementAt(i).conveniencetypeId.toString()));
-        listOfReleaseGoodConvNbs.add(int.parse(releaseGood.releasegoodconvenience!.elementAt(i).number.toString()));
+      for (int i = 0; i < releaseGood.releasegoodconvenience!.length; i++) {
+        listOfReleaseGoodConvIds.add(int.parse(releaseGood
+            .releasegoodconvenience!
+            .elementAt(i)
+            .conveniencetypeId
+            .toString()));
+        listOfReleaseGoodConvNbs.add(int.parse(releaseGood
+            .releasegoodconvenience!
+            .elementAt(i)
+            .number
+            .toString()));
       }
 
-         //listOfReleaseGoodConvIds.
+      //listOfReleaseGoodConvIds.
       //   print(listOfReleaseGoodConvIds);
       return checkCorrespondance();
     }).toList();
 
-
-
-
     return listTri;
   }
 
-  List<ReleaseGoodModel3> triLocalite(List<ReleaseGoodModel3> listOfreleaseGoodModel) {
-
-    bool checkLocalite( ReleaseGoodModel3 releaseGood){
-      bool coorespondance=false;
-      if(releaseGood.city?.intitule?.compareTo(villeSelectionee)==0){
-        if(quartierSelectionne.compareTo("Tous les quartiers")==0){
-          coorespondance=true;
-        }else
-          if(releaseGood.quartier?.intitule?.compareTo(quartierSelectionne)==0){
-            coorespondance=true;
-          }
-
+  List<ReleaseGoodModel3> triLocalite(
+      List<ReleaseGoodModel3> listOfreleaseGoodModel) {
+    bool checkLocalite(ReleaseGoodModel3 releaseGood) {
+      bool coorespondance = false;
+      if (releaseGood.city?.intitule?.compareTo(villeSelectionee) == 0) {
+        if (quartierSelectionne.compareTo("Tous les quartiers") == 0) {
+          coorespondance = true;
+        } else if (releaseGood.quartier?.intitule
+                ?.compareTo(quartierSelectionne) ==
+            0) {
+          coorespondance = true;
+        }
       }
 
       return coorespondance;
@@ -676,23 +612,19 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
       return checkLocalite(element);
     }).toList();
 
-
     return listTri;
   }
 
-  List<ReleaseGoodModel3> triPropertyType(List<ReleaseGoodModel3> listOfreleaseGoodModel) {
-
-
+  List<ReleaseGoodModel3> triPropertyType(
+      List<ReleaseGoodModel3> listOfreleaseGoodModel) {
     final listTri = listOfreleaseGoodModel.where((element) {
-      return element.propertytype?.intitule?.compareTo(typeSelectionne)==0;
+      return element.propertytype?.intitule?.compareTo(typeSelectionne) == 0;
     }).toList();
-
 
     return listTri;
   }
 
   void recupConvIdsAndCount() {
-
     int i = 0;
     listOfChoosenConvenienceIds.clear();
     listOfChoosenConvenienceNbs.clear();
@@ -703,30 +635,26 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
       }
       i++;
     }
-
-
   }
-  
+
   List<ReleaseGoodModel3> triGeneral() {
-    nbOfResult=0;
+    nbOfResult = 0;
     recupConvIdsAndCount();
 
     late List<ReleaseGoodModel3> listReleaseGoodModel = <ReleaseGoodModel3>[];
 
-    listReleaseGoodModel=triLocalite(listOfReleaseGoodsInitial);
-    listReleaseGoodModel=triPropertyType(listReleaseGoodModel);
+    listReleaseGoodModel = triLocalite(listOfReleaseGoodsInitial);
+    listReleaseGoodModel = triPropertyType(listReleaseGoodModel);
 
-
-    if(!premierTri) {
+    if (!premierTri) {
       listReleaseGoodModel = triPeriode(listReleaseGoodModel);
 
-      listReleaseGoodModel =triPrix(listReleaseGoodModel);
+      listReleaseGoodModel = triPrix(listReleaseGoodModel);
 
       listReleaseGoodModel = triConvenience(listReleaseGoodModel);
-
-    }
-    else{ // au premier tri pour l'affichage on aura pas de message si le resultat est vide
-      if(listReleaseGoodModel.isEmpty){
+    } else {
+      // au premier tri pour l'affichage on aura pas de message si le resultat est vide
+      if (listReleaseGoodModel.isEmpty) {
         Fluttertoast.showToast(
             msg: "Aucune correspondance trouvée",
             toastLength: Toast.LENGTH_SHORT,
@@ -734,12 +662,10 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
             timeInSecForIosWeb: 20,
             backgroundColor: Colors.red,
             textColor: Colors.white,
-            fontSize: 16.0
-        );
+            fontSize: 16.0);
       }
-      premierTri=false;
+      premierTri = false;
     }
-
 
     return listReleaseGoodModel;
   }
@@ -754,11 +680,11 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
           position: listOfConvenience.indexOf(element),
           convenience: element,
           list: nbConvList,
-          counter:nbConvList[listOfConvenience.indexOf(element)],));
+          counter: nbConvList[listOfConvenience.indexOf(element)],
+        ));
         nbConvPlusOrMinus++;
       }
     }
-
 
     return list;
   }
@@ -768,28 +694,24 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
     List<Widget> list = [];
     for (var element in (listOfConvenience)) {
       if (element.morethanone == 0) {
-        list.add(CardItemCheckBox(position: listOfConvenience.indexOf(element),
-          convenience: element,
-          list: nbConvList,
-          checkBoxValue: (nbConvList[listOfConvenience.indexOf(element)]==1) ? true : false
-            ));
+        list.add(CardItemCheckBox(
+            position: listOfConvenience.indexOf(element),
+            convenience: element,
+            list: nbConvList,
+            checkBoxValue: (nbConvList[listOfConvenience.indexOf(element)] == 1)
+                ? true
+                : false));
         nbConvPlusOrMinus++;
       }
     }
 
-
     return list;
   }
 
-
-
-
   Widget generateScrollableConveniencesCard() {
-
     Future retreiveConveniences() async {
-
       //if(premierChargeConvenience) {
-      if(listOfConvenience.isEmpty) {
+      if (listOfConvenience.isEmpty) {
         Map<String, String> headers = {
           "Content-Type": "application/json",
           'Accept': 'application/json',
@@ -799,14 +721,15 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
 // var city_id=1;
         String fullUrl = '${baseUrl}v1/convenience-types';
 
-       // print(fullUrl);
+        // print(fullUrl);
         final uri = Uri.parse(fullUrl);
         http.Response response2 = await http.get(uri, headers: headers);
 
-        if(response2.statusCode==200) {
+        if (response2.statusCode == 200) {
           final List data = jsonDecode(response2.body.toString())['data'];
 
-          listOfConvenience= data.map((e) => Conveniences.fromJson(e)).toList();
+          listOfConvenience =
+              data.map((e) => Conveniences.fromJson(e)).toList();
 
           for (var element in listOfConvenience) {
             listOfConvenienceIds.add(element.id);
@@ -814,16 +737,10 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
           }
 
           listOfConvenience.sort((a, b) => a.intitule.compareTo(b.intitule));
-
-        }else{
-
+        } else {
           //return retreiveReleaseGood(fullUrl, token);
           throw Exception(response2.reasonPhrase);
         }
-
-
-
-
       }
       return listOfConvenience;
     }
@@ -842,7 +759,7 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
                 /*return Center(
                   child: Text('Erreur occured: ${snapshot.error}'),
                 );*/
-               return generateScrollableConveniencesCard(); // des erreurs sont générées quand la response est mal chargée. donc recommencer la construction du widget
+                return generateScrollableConveniencesCard(); // des erreurs sont générées quand la response est mal chargée. donc recommencer la construction du widget
               } else if (snapshot.hasData) {
                 //premierChargeConvenience=false; // chargement des conveninces reussie mettre à false pour ne pas recharger à l'appel suivant
                 return Container(
@@ -850,14 +767,17 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(45),
-                      border: Border.all(color: AppColors.mainColor,
+                      border: Border.all(
+                          color: AppColors.mainColor,
                           width: 1,
-                          style: BorderStyle.solid)
-                  ),
+                          style: BorderStyle.solid)),
                   child: Scrollbar(
-                    thumbVisibility: true, //always show scrollbar
-                    thickness: 7, //width of scrollbar
-                    radius: const Radius.circular(20), //corner radius of scrollbar
+                    thumbVisibility: true,
+                    //always show scrollbar
+                    thickness: 7,
+                    //width of scrollbar
+                    radius: const Radius.circular(20),
+                    //corner radius of scrollbar
                     scrollbarOrientation: ScrollbarOrientation.right,
                     controller: scrollController,
 
@@ -865,10 +785,10 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
                       primary: false,
                       controller: scrollController,
                       itemCount: listOfCardItemPlusOrMinus.length,
-                        itemBuilder: (context,i){
-                            return listOfCardItemPlusOrMinus[i];
-                        },
-                        //children: listOfCardItemPlusOrMinus
+                      itemBuilder: (context, i) {
+                        return listOfCardItemPlusOrMinus[i];
+                      },
+                      //children: listOfCardItemPlusOrMinus
                     ),
                   ),
                 );
@@ -876,17 +796,14 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
                 return const Center(child: Text('No data'));
               }
           }
-        }
-
-    );
+        });
   }
 
   Widget getDateRangePicker() {
     return SizedBox(
       height: 200,
-
       child: Card(
-        elevation: 15,
+          elevation: 15,
           child: SfDateRangePicker(
             view: DateRangePickerView.decade,
             selectionMode: DateRangePickerSelectionMode.range,
@@ -896,9 +813,7 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
     );
   }
 
-
-
- /* Widget villeAndQuartierWidgets() {
+  /* Widget villeAndQuartierWidgets() {
 
 
 
@@ -1199,105 +1114,102 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
   }*/
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-
+    return Scaffold(
       key: scaffoldKey,
-
-      appBar: AppBar(backgroundColor: AppColors.mainColor,
-        title: Title(color: Colors.white, child: Text('Disponibles ($nbOfResult)'),),
+      appBar: AppBar(
+        backgroundColor: AppColors.mainColor,
+        title: Title(
+          color: Colors.white,
+          child: Text('Disponibles ($nbOfResult)'),
+        ),
         elevation: 15,
-
-         leading: Container(
-              padding: const EdgeInsets.all(3),
-              child: IconButton(
-                onPressed: () {
-                  listOfCardItemPlusOrMinus =
-                      generateListOfConveniencePlusOrMinus(listOfConvenience);
-                  listOfCardItemPlusOrMinus.addAll(
-                      generateListOfConvenienceCheckBox(listOfConvenience));
-                  scaffoldKey.currentState?.openDrawer();
-
-                },
-                icon: Image.asset('assets/icon/android/choix.png',
-                color: Colors.white
-              ),)
-            ),
+        leading: Container(
+            padding: const EdgeInsets.all(3),
+            child: IconButton(
+              onPressed: () {
+                listOfCardItemPlusOrMinus =
+                    generateListOfConveniencePlusOrMinus(listOfConvenience);
+                listOfCardItemPlusOrMinus.addAll(
+                    generateListOfConvenienceCheckBox(listOfConvenience));
+                scaffoldKey.currentState?.openDrawer();
+              },
+              icon: Image.asset('assets/icon/android/choix.png',
+                  color: Colors.white),
+            )),
       ),
-      drawer:  Drawer(
-
+      drawer: Drawer(
           elevation: 15,
-
-
-          child:  SingleChildScrollView(
-
-
+          child: SingleChildScrollView(
             child: Container(
-                padding: const EdgeInsets.only(
-                    right: 5, left: 5, top: 50, bottom: 20),
-                width: 250,
+              padding:
+                  const EdgeInsets.only(right: 5, left: 5, top: 50, bottom: 20),
+              width: 250,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TitleSmallText(text: 'Préférences', color: Colors.indigo,),
-
-                    Divider(
-                      height: 10,
-                      color: AppColors.mainColor2,
-                      thickness: 1,
-                      endIndent: 100,
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    child: IconButton(
+                      onPressed: () {
+                        Get.offAllNamed(RouteName.navigationView);
+                      },
+                      icon: const Icon(Icons.arrow_back),
                     ),
-                    Column(
-                      //crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                  ),
+                  TitleSmallText(
+                    text: 'Préférences',
+                    color: Colors.indigo,
+                  ).center(),
+                  Divider(
+                    height: 10,
+                    color: AppColors.mainColor2,
+                    thickness: 1,
+                    endIndent: 100,
+                  ),
+                  Column(
+                    //crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      villeAndQuartierWidgets(),
+                      futureListPropertyType(),
+                      const SizedBox(
+                        height: 15.0,
+                      ),
+                      StatefulBuilder(builder: (context, funct) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: dateColor,
+                                // foreground
+                                elevation: 10,
+                                shape: const BeveledRectangleBorder(),
+                                alignment: Alignment.centerRight,
+                              ),
 
+                              onPressed: periodActive
+                                  ? () {
+                                      showMonthYearPicker(
+                                        context: context,
+                                        initialDate: dateTimeChoosen,
+                                        firstDate: DateTime(2022),
+                                        lastDate: DateTime(2025),
+                                        locale: const Locale("fr", "FR"),
+                                      ).then((date) {
+                                        if (date != null) {
+                                          funct(() => {
+                                                periodActive = true,
+                                                periodeDeLiberation =
+                                                    DateFormat.yMMM()
+                                                        .format(date),
+                                                dateTimeChoosen = date
+                                              });
+                                        }
+                                      });
 
-                        villeAndQuartierWidgets(),
-                        futureListPropertyType(),
-
-                        const SizedBox(height: 15.0,),
-                        StatefulBuilder(builder: (context, funct) {
-                          return
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ElevatedButton(
-
-                                  style: ElevatedButton.styleFrom(
-                                    foregroundColor: Colors.white, backgroundColor: dateColor,
-                                    // foreground
-                                    elevation: 10,
-                                    shape: const BeveledRectangleBorder(),
-                                    alignment: Alignment.centerRight,
-
-
-
-                                  ),
-
-                                  onPressed: periodActive?() {
-                                    showMonthYearPicker(
-                                      context: context,
-                                      initialDate: dateTimeChoosen,
-                                      firstDate: DateTime(2022),
-                                      lastDate: DateTime(2025),
-                                      locale: const Locale("fr", "FR"),
-
-
-
-                                    ).then((date) {
-                                     if(date != null) {
-                                       funct(() =>
-                                       {
-                                         periodActive = true,
-                                         periodeDeLiberation =
-                                             DateFormat.yMMM().format(date),
-                                         dateTimeChoosen = date
-                                       });
-                                     }
-                                    });
-
-
-                                   /* showDialog(context: context,
+                                      /* showDialog(context: context,
                                         builder: (BuildContext context){
                                           return AlertDialog(
                                               title: Text(''),
@@ -1325,44 +1237,49 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
                                                 ],
                                               ));
                                         });*/
-                                   /* SfDateRangePicker(
+                                      /* SfDateRangePicker(
                                       view: DateRangePickerView.year,
                                     );*/
-                                  }:null,
-                                  //child: MediumText(text: 'Date de Liberation:\n $dateDeLiberation'),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.date_range_rounded),
-                                      const SizedBox(width: 5,),
-                                      Text('Période: $periodeDeLiberation'),
-                                    ],
-
-                                    //majDate(date)
+                                    }
+                                  : null,
+                              //child: MediumText(text: 'Date de Liberation:\n $dateDeLiberation'),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.date_range_rounded),
+                                  const SizedBox(
+                                    width: 5,
                                   ),
-                                ),
+                                  Text('Période: $periodeDeLiberation'),
+                                ],
 
-                                Checkbox(value: periodActive, onChanged: (value) {
-
-                                  funct(() =>
-                                  {
-                                    periodActive = value!,
-                                    if(value){
-                                      periodeDeLiberation =  periodeDeLiberation =
-                                          DateFormat.yMMM().format(dateTimeChoosen),
-                                      dateColor = Colors.indigo
-                                    }else
-                                      {
-
-                                        periodeDeLiberation = 'Aucune',
-                                        dateColor = Colors.grey
-                                      }
-                                  });
+                                //majDate(date)
+                              ),
+                            ),
+                            Checkbox(
+                                value: periodActive,
+                                onChanged: (value) {
+                                  funct(() => {
+                                        periodActive = value!,
+                                        if (value)
+                                          {
+                                            periodeDeLiberation =
+                                                periodeDeLiberation =
+                                                    DateFormat.yMMM().format(
+                                                        dateTimeChoosen),
+                                            dateColor = Colors.indigo
+                                          }
+                                        else
+                                          {
+                                            periodeDeLiberation = 'Aucune',
+                                            dateColor = Colors.grey
+                                          }
+                                      });
                                 })
-                              ],
-                            );
-                        }),
+                          ],
+                        );
+                      }),
 
-      /*  StatefulBuilder(builder: (context, funct) {
+                      /*  StatefulBuilder(builder: (context, funct) {
           return CheckboxListTile(
               value: periodActive,
               title: Text('Activer la période'),
@@ -1375,123 +1292,100 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
               });
         }),*/
 
-
-                        const SizedBox(height: 15.0,),
-
-                        Container(
-                          margin: const EdgeInsets.only(left: 40,right: 40),
-                          child: TextFormField(
-
-                            controller: _prixController,
-
-                            decoration: const InputDecoration(
-
-                              labelText: "Prix maximum",
-                              labelStyle: TextStyle(fontSize: 15,
-                                  color: Colors.black54),
-                              // errorText: "Renseignez le prix",
-                              border: UnderlineInputBorder(),
-
-                            ),
-                            keyboardType: TextInputType.number,
-                            maxLength: 7,
-
-                            validator: (value) {
-                              if (int.parse(value!) < 0) {
-                                return 'Entrez une valeur correct';
-                              }
-                              return null;
-                            },
-
+                      const SizedBox(
+                        height: 15.0,
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(left: 40, right: 40),
+                        child: TextFormField(
+                          controller: _prixController,
+                          decoration: const InputDecoration(
+                            labelText: "Prix maximum",
+                            labelStyle:
+                                TextStyle(fontSize: 15, color: Colors.black54),
+                            // errorText: "Renseignez le prix",
+                            border: UnderlineInputBorder(),
                           ),
-                        ),
-                        const SizedBox(height: 15,),
-
-
-                       convenienceWidget,
-
-
-                        const SizedBox(height: 15,),
-
-
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white, backgroundColor: Colors.indigo, // foreground
-                              elevation: 10,
-                              shape: const StadiumBorder()
-                          ),
-
-                          onPressed: () {
-                            if(villeSelectionee.compareTo('Choisir la ville')==0){
-                              Fluttertoast.showToast(
-                                  msg: "Définissez la localité",
-                                  toastLength: Toast.LENGTH_LONG,
-                                  gravity: ToastGravity.CENTER,
-                                  timeInSecForIosWeb: 20,
-                                  backgroundColor: Colors.blue,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0
-                              );
-                            }else if(typeSelectionne.compareTo('Choisir le type')==0 ){
-                              Fluttertoast.showToast(
-                                  msg: "Définissez le type de bien",
-                                  toastLength: Toast.LENGTH_LONG,
-                                  gravity: ToastGravity.CENTER,
-                                  timeInSecForIosWeb: 20,
-                                  backgroundColor: Colors.blue,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0
-                              );
-                            }else {
-
-                              List<ReleaseGoodModel3> result = triGeneral();
-                              nbOfResult = result.length;
-                              if (nbOfResult! > 0) {
-                                setState(() {
-                                  listOfReleaseGoodsToDisplay = result;
-                                });
-                                Navigator.of(context).pop();
-                              } else {
-                                Fluttertoast.showToast(
-                                    msg: "Aucune correspondance trouvée",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIosWeb: 20,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0
-                                );
-                              }
+                          keyboardType: TextInputType.number,
+                          maxLength: 7,
+                          validator: (value) {
+                            if (int.parse(value!) < 0) {
+                              return 'Entrez une valeur correct';
                             }
+                            return null;
                           },
-
-
-                          child: const Text("Filtrer"),
                         ),
-
-
-
-                      ],
-                    ),
-
-
-
-
-
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      convenienceWidget,
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.indigo,
+                            // foreground
+                            elevation: 10,
+                            shape: const StadiumBorder()),
+                        onPressed: () {
+                          if (villeSelectionee.compareTo('Choisir la ville') ==
+                              0) {
+                            Fluttertoast.showToast(
+                                msg: "Définissez la localité",
+                                toastLength: Toast.LENGTH_LONG,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 20,
+                                backgroundColor: Colors.blue,
+                                textColor: Colors.white,
+                                fontSize: 16.0);
+                          } else if (typeSelectionne
+                                  .compareTo('Choisir le type') ==
+                              0) {
+                            Fluttertoast.showToast(
+                                msg: "Définissez le type de bien",
+                                toastLength: Toast.LENGTH_LONG,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 20,
+                                backgroundColor: Colors.blue,
+                                textColor: Colors.white,
+                                fontSize: 16.0);
+                          } else {
+                            List<ReleaseGoodModel3> result = triGeneral();
+                            nbOfResult = result.length;
+                            if (nbOfResult! > 0) {
+                              setState(() {
+                                listOfReleaseGoodsToDisplay = result;
+                              });
+                              Navigator.of(context).pop();
+                            } else {
+                              Fluttertoast.showToast(
+                                  msg: "Aucune correspondance trouvée",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                  timeInSecForIosWeb: 20,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                            }
+                          }
+                        },
+                        child: const Text("Filtrer"),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
             //),
-          )
-      ),
-
-
+          )),
       body: Container(
-        //color: AppColors.mainColor2,
-          padding: const EdgeInsets.only(top: 45,bottom: 20,left: 3,right: 3),
-          child: releaseGoodWidget()
-      ),
-
+          //color: AppColors.mainColor2,
+          padding:
+              const EdgeInsets.only(top: 45, bottom: 20, left: 3, right: 3),
+          child: releaseGoodWidget()),
 
       /* final prefs =  await SharedPreferences.getInstance();
         await prefs.setString('token', token as String);
@@ -1543,7 +1437,6 @@ class ResultCubit extends Cubit<String> {
   }
 
   void updateNbOfResult() => emit(nbOfResult);
-
 }
 
 var scaffoldKey = GlobalKey<ScaffoldState>();
@@ -1551,7 +1444,7 @@ late Widget convenienceWidget;
 var fullUrl = '${apiUrl}v1/release-goods';
 //Map<String, dynamic> goods;
 
-bool firstDrawerDisplay=true;
+bool firstDrawerDisplay = true;
 const baseUrl = apiUrl;
 
 const double iconContainerH = 70.0;
@@ -1561,7 +1454,7 @@ late List<ReleaseGoodModel3> listOfReleaseGoodsInitial;
 late List<ReleaseGoodModel3> listOfReleaseGoodsToDisplay;
 TextEditingController _prixController = TextEditingController();
 
-bool initialize=true;
+bool initialize = true;
 
 List<String> listOfCityName = ['Choisir la ville'];
 List<int> listOfCityId = <int>[];
@@ -1575,17 +1468,14 @@ List<int> listOfQuartierId = <int>[];
 List<String> listOfProperty = ['Choisir le type'];
 List<int> listOfPropertyId = <int>[];
 
-
-late String villeSelectionee ,quartierSelectionne = 'Tous les quartiers', typeSelectionne ;
-
-
-
+late String villeSelectionee,
+    quartierSelectionne = 'Tous les quartiers',
+    typeSelectionne;
 
 int nbChambre = 0;
 double prix = 25000;
 
 num? nbOfResult = 0;
-
 
 List<Map> convMap = [];
 
@@ -1597,13 +1487,13 @@ List<Array> convArray = [];
 
 bool _checkValue = false;
 
- DateTime dateTimeChoosen=DateTime.now();
+DateTime dateTimeChoosen = DateTime.now();
 
 bool _accord = false;
 
 String periodeDeLiberation = 'Aucune';
 
-List<Conveniences> listOfConvenience=[];
+List<Conveniences> listOfConvenience = [];
 
 List<int> listOfConvenienceIds = <int>[];
 
@@ -1614,25 +1504,20 @@ List<int> nbConvList = [];
 
 int nbConvPlusOrMinus = 0;
 
-String localisation = '',
-    commentaire = '',
-    contact = '',
-    conditions = '';
+String localisation = '', commentaire = '', contact = '', conditions = '';
 
 String convNb = "";
 
-bool chargerLesQuartiers=false;
+bool chargerLesQuartiers = false;
 
 final periodes = ["Ce mois", "Le mois prochain", "Autre"];
-String valeurPeriode="Ce mois";
+String valeurPeriode = "Ce mois";
 
-int cityId=0, quartierId=0,propertyId=0,  countryId=1;
-ScrollController scrollController=ScrollController();
+int cityId = 0, quartierId = 0, propertyId = 0, countryId = 1;
+ScrollController scrollController = ScrollController();
 
-bool premierTri=true;
-bool periodActive=false;
+bool premierTri = true;
+bool periodActive = false;
 
-MaterialColor dateColor=Colors.indigo;
+MaterialColor dateColor = Colors.indigo;
 // bool premierChargeConvenience=true;
-
-

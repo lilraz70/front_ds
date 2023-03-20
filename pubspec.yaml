@@ -69,6 +69,7 @@ dependencies:
   http: ^0.13.5
   google_sign_in: ^5.4.4
   flutter_facebook_auth: ^5.0.7
+  cached_network_image: ^3.2.3
 
 
   # The following adds the Cupertino Icons font to your application.

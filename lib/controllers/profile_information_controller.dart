@@ -110,7 +110,7 @@ class ProfileInformationController extends GetxController {
               );
             }else{
               errorMessages = converValidationErrors(value:request.data['errors'] );
-              showMessage(type: 'error', title: "Inscription echoué", message:"${errorMessages.join(', ')}");
+              showMessage(type: 'error', title: "Inscription echoué", message:errorMessages.join(', '));
             }
           }
 

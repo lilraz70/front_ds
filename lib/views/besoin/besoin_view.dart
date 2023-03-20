@@ -36,9 +36,9 @@ class BesoinViewState extends State<BesoinView> {
             children: [
               //Header
               MediumText(
-                  text: 'Trouvez les besoins....',
+                  text: 'Acceder aux bésoins de la communautée',
                   color: Colors.indigo,
-                  size: 12),
+                  size: 12).center(),
               10.height,
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +81,7 @@ class BesoinViewState extends State<BesoinView> {
                                                     child: CircleAvatar(
                                                       backgroundImage:
                                                       NetworkImage(
-                                                          '$baseResourceUrl${authUser["photo_de_profil"]}'),
+                                                          '$baseResourceUrl${besoin.user?.photo_de_profil}'),
                                                       maxRadius: 20,
                                                       backgroundColor:
                                                       Colors.white,

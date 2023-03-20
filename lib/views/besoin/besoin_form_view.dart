@@ -23,7 +23,6 @@ class BesoinFormViewState extends State<BesoinFormView>{
   Widget build(BuildContext context) {
     var deviceHeight = MediaQuery.of(context).size.height;
     var devicewidth = MediaQuery.of(context).size.width;
-
     return GetBuilder<BesoinController>(builder: (_) {
       return SafeArea(
           child: Scaffold(
@@ -31,7 +30,7 @@ class BesoinFormViewState extends State<BesoinFormView>{
             appBar: AppBar(
               leading: InkWell(
                 onTap: (() {
-                  Get.offAllNamed(RouteName.besoinView);
+                  Get.offAllNamed(RouteName.navigationView);
                 }),
                 child: const Icon(
                   Icons.arrow_back,

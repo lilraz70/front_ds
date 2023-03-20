@@ -2,13 +2,15 @@ import 'package:front_ds/bindings/edit_profil_binding.dart';
 import 'package:front_ds/configs/session_data.dart';
 import 'package:front_ds/views/pubs/my_pub_view.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
-import '../bindings/Pub_binding.dart';
+import '../bindings/pub_binding.dart';
 import '../bindings/auth_binding.dart';
 import '../bindings/besoin_binding.dart';
 import '../bindings/home_binding.dart';
 import '../bindings/loading_binding.dart';
 import '../bindings/otp_verification_binding.dart';
 import '../bindings/profile_information_binding.dart';
+import '../bindings/edit_pub_binding.dart';
+import '../bindings/release_good_binding.dart';
 import '../pages/enregistrerReleaseGood.dart';
 import '../pages/home.dart';
 import '../pages/initReleaseGoodSearch.dart';
@@ -63,8 +65,8 @@ class RouteName {
 List<GetPage<dynamic>> appRoutes = [
   GetPage(
       name: RouteName.init,
-    page: ()=> const OnBoardingView() ,
-   // page: !SessionData.isLoggedIn() ?  ()=> const OnBoardingView() : () => const NavigationView(),
+    //page: ()=> const OnBoardingView() ,
+    page: !SessionData.isLoggedIn() ?  ()=> const OnBoardingView() : () => const NavigationView(),
     binding: HomeBinding(),
       ),
   GetPage(
@@ -80,31 +82,22 @@ List<GetPage<dynamic>> appRoutes = [
   GetPage(
     name: RouteName.login,
     page: () => const AuthView(),
-    // binding:  HomeBinding(),
+    binding: AuthBinding(),
   ),
   GetPage(
     name: RouteName.searchReleaseGood,
     page: () => const SearchReleaseGoods(),
-    /* cityId:state.params["cityId"]!,
-    quartierId:state.params["quartierId"]!,
-    propertyId:state.params["propertyId"]!,
-    villeSelectionnee:state.params["villeSelectionnee"]!,
-    quartierSelectionne:state.params["quartierSelectionne"]!,
-    typeSelectionne:state.params["typeSelectionne"]!,*/
-
-    // binding:  HomeBinding(),
+    binding:  HomeBinding(),
   ),
   GetPage(
     name: RouteName.updateReleaseGood,
-    page: () => UpdateReleaseGood(
-      releaseGoodString: "releaseGoodString",
-    ),
-    // binding:  HomeBinding(),
+    page: () => const UpdateReleaseGood(),
+    binding: EditPubBinding(),
   ),
   GetPage(
     name: RouteName.storeReleaseGood,
     page: () => EnregisterReleaseGood(),
-    // binding:  HomeBinding(),
+    binding: ReleaseGoodBinding(),
   ),
   GetPage(
     name: RouteName.profileInformation,
@@ -164,6 +157,7 @@ List<GetPage<dynamic>> appRoutes = [
       binding: EditProfilBinding()),
   GetPage(
       name: RouteName.myPubView,
-      page: () => MyPubView(),
+      page: () => const MyPubView(),
       binding: PubBinding()),
+
 ];

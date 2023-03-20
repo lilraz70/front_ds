@@ -77,7 +77,7 @@ class BesoinController extends GetxController {
         if(request.ok){
           userBesoinLists = userBesoinLists +  request.data['data']['data'];
           listUserBesoin.assignAll(addBesoinListFromJson(userBesoinLists));
-          print(listUserBesoin.length);
+
         }
       }finally{
         isloading(false);
@@ -98,7 +98,7 @@ class BesoinController extends GetxController {
   Future<void>  scrollLister() async {
     if(infinityLoading()) return ;
     if(scrollController.position.pixels == scrollController.position.maxScrollExtent){
-      //    print("lister called");
+
       page = page +1;
       infinityLoading(true);
       await getAllBesoin();
@@ -106,14 +106,12 @@ class BesoinController extends GetxController {
         return infinityLoading(false);
       }));
 
-    }else {
-      //    print("dont called lister ");
     }
   }
   Future<void>  scrollUserBesoinLister() async {
     if(infinityLoading()) return ;
     if(scrollUserBesoinController.position.pixels == scrollUserBesoinController.position.maxScrollExtent){
-      //    print("lister called");
+
       userBesoinPage =  userBesoinPage +1;
       userBesoinInfinityLoading(true);
       await getAllBesoin();
@@ -121,8 +119,6 @@ class BesoinController extends GetxController {
         return userBesoinInfinityLoading(false);
       }));
 
-    }else {
-      //    print("dont called lister ");
     }
   }
 

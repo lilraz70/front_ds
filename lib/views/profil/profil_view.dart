@@ -1,7 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:front_ds/constants/colors.dart';
-import 'package:get/get.dart';
+import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:front_ds/constants/colors.dart';
+import 'package:front_ds/functions/utils.dart';
+import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import '../../api/services/google_sign_in_api.dart';
 import '../../configs/app_routes.dart';
 import '../../configs/http_config.dart';
 import '../../configs/session_data.dart';
@@ -41,6 +49,7 @@ class ProfileView extends StatelessWidget {
                           Get.offAllNamed(
                             RouteName.myPubView,
                           );
+                          //Navigator.pushNamed(context, '/myPubView');
                         },
                         heroTag: 'Mes publications',
                         elevation: 0,
@@ -83,12 +92,30 @@ class ProfileInfoRow extends StatelessWidget {
       Get.offAllNamed(
       RouteName.editProfilView,
     ); },  ),
-   ProfileInfoItem( title: "Déconnexion", icon: Icons.logout , action:((){
-     Get.offAllNamed(
-       RouteName.authView,
-     );
+   ProfileInfoItem( title: "Déconnexion", icon: Icons.logout , action:(() async {
+      Map<String, String> headers = {
+        "Content-Type": "application/json",
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+      String fullUrl = '$baseUrl/api/logout';
+      final uri = Uri.parse(fullUrl);
+      http.Response response2 = await http.post(uri, headers: headers);
+      var data = jsonDecode(response2.body);
+      if(data['success'] == true){
+        if(user['google_id'] != null){
+          final GoogleSignIn googleSignIn = GoogleSignIn();
+          await googleSignIn.signOut();
+        }
+        if(user['facebook_id'] != null){
+          await FacebookAuth.instance.logOut();
+        }
+        Get.offAllNamed(RouteName.authView);
+        showMessage(type: "success", title: "Déconnexion réussie", message: "Vous avez été déconnecté avec succès");
+      }else {
+        showMessage(type: "error", title: "Echec", message: "Echec de la déconnexion, Veuillez réessayer");
+      }
    }) ),
-    //ProfileInfoItem("Following", 200),
   ];
 
   @override
@@ -113,7 +140,6 @@ class ProfileInfoRow extends StatelessWidget {
       ),
     );
   }
-
   Widget singleItem(BuildContext context, ProfileInfoItem item) => GestureDetector(
     onTap: () => item.action(),
     child: Column(
@@ -130,6 +156,53 @@ class ProfileInfoRow extends StatelessWidget {
       ],
     ),
   );
+
+  Future<void> cleanPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+  Future logOut() async {
+
+  }
+  Widget dialogLogOut() {
+    return AlertDialog(
+      title: const Text('Me déconnecter ?'),
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      actions: [
+        TextButton(
+          onPressed: () {
+            logOut().then((value) => {
+              if (value.statusCode == 200)
+                {
+                  cleanPrefs().then((value) => //context.go("/")
+                  Get.offAllNamed(
+                    RouteName.init,
+                  ))
+                }
+              else
+                {
+                  Fluttertoast.showToast(
+                      msg: 'Echec. Réessayer',
+                      toastLength: Toast.LENGTH_LONG,
+                      gravity: ToastGravity.CENTER,
+                      timeInSecForIosWeb: 20,
+                      backgroundColor: Colors.blue,
+                      textColor: Colors.white,
+                      fontSize: 16.0)
+                }
+            });
+          },
+          child: const Text('Déconnecter'),
+        ),
+        TextButton(
+          onPressed: () {
+
+          },
+          child: const Text('Annuler'),
+        ),
+      ],
+    );
+  }
 }
 
 class ProfileInfoItem {

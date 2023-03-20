@@ -12,9 +12,9 @@ getUserAccess()async {
 Map user = SessionData.getUser();
 String userAccess = user["telephone"];
 String token = SessionData.getToken();
-const String apiUrl='http://192.168.1.70:8000/api/';
+const String apiUrl='http://192.168.0.128:8000/api/';
 const authorization = "Bearer ";
-const url = "http://192.168.1.70:8000";
+const url = "http://192.168.0.128:8000";
 const baseUrl = "$url/api";
 const baseResourceUrl = "$url/storage/";
 const contentType = "application/json; charset=UTF-8";
@@ -33,7 +33,6 @@ Future<RequestResult> httpGET(String route, [dynamic data]) async {
     var url = "$baseUrl$route?data=$dataStr";
     try {
     var result = await http.get(Uri.parse(url), headers: header);
-    print(jsonDecode(result.body));
       return RequestResult(true, jsonDecode(result.body));
     } catch(exception) {
       return RequestResult(false, null);

@@ -63,7 +63,7 @@ class OnBoardingView extends StatelessWidget {
         },
         onFinish: ((){
           Get.offAllNamed(
-              RouteName.navigationView,);
+              RouteName.authView,);
         }),
       ),
     );

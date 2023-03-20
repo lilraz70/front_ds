@@ -9,12 +9,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../configs/app_routes.dart';
 import '../../configs/http_config.dart';
 import '../../configs/session_data.dart';
-import '../../constants/colors.dart';
 import '../../controllers/pub_controller.dart';
 import '../../functions/utils.dart';
 import '../../models/ReleaseGoodModel3.dart';
-import '../../widgets/mediumText.dart';
 import 'my_pub_view_content.dart';
+
 
 
 
@@ -187,6 +186,7 @@ class _MyPubViewState extends State<MyPubView> {
   void initState() {
     super.initState();
     checkConnectivity();
+    dynamic hasInternetConnection = checkConnexion();
     subscription = Connectivity()
         .onConnectivityChanged
         .listen((ConnectivityResult result) {
@@ -195,12 +195,18 @@ class _MyPubViewState extends State<MyPubView> {
         connectivity = true;
       } else {
         connectivity = false;
-
+      }
+    });
+    hasInternetConnection.then((val) async {
+      if (val) {
+        connectivity = true;
+      } else {
+        connectivity = false;
         Fluttertoast.showToast(
             msg: 'Vérifiez votre connexion internet',
             toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 10,
+            timeInSecForIosWeb: 20,
             backgroundColor: Colors.blue,
             textColor: Colors.white,
             fontSize: 16.0);
@@ -295,15 +301,13 @@ class _MyPubViewState extends State<MyPubView> {
         title: const Text('Mes publications'),
         centerTitle: true,
         elevation: 0,
-        leading: InkWell(
-          onTap: () {
-            Get.offAllNamed(RouteName.home);
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.offAllNamed(
+              RouteName.navigationView,
+            );
           },
-          child: const Icon(
-            Icons.arrow_back,
-            size: 30,
-            color: Colors.black,
-          ),
         ),
         actions: [
           InkWell(
@@ -385,11 +389,9 @@ class _MyPubViewState extends State<MyPubView> {
   }
 }
 
-MyPubViewContent myPubViewContent =
-MyPubViewContent();
+MyPubViewContent myPubViewContent = MyPubViewContent();
 List<ReleaseGoodModel3> listOfReleaseGoodsInitial = [];
 List<ReleaseGoodModel3> listOfReleaseGoodsToDisplay = [];
-// String userAccess='';
 bool connectivity = false;
 const baseUrl = apiUrl;
 var fullUrl = '${apiUrl}v1/release-goods-search/${user['id']}';

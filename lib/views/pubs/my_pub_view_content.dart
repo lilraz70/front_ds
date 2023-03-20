@@ -16,7 +16,7 @@ import '../../controllers/pub_controller.dart';
 import '../../models/ReleaseGoodModel3.dart';
 import '../../configs/app_routes.dart';
 import '../../configs/http_config.dart';
-import '../../pages/home.dart';
+import 'my_pub_view.dart';
 import '../../utils/colors.dart';
 import '../../widgets/mediumText.dart';
 
@@ -131,23 +131,27 @@ class _MyPubViewContentState
                           ],
                           onSelected: (val){
                             if(val == "edit"){
-                              Get.toNamed(RouteName.besoinFormEditView,
-                                  arguments: "");
+                              Get.offAllNamed(RouteName.updateReleaseGood,
+                                  arguments: {
+                                    'releaseGoodString': jsonEncode(listOfReleaseGoodsToDisplay[index])
+                                  });
                             }
                             else{
                               Get.defaultDialog(
                                 title: "Vous êtes sûre de supprimé ",
-                                middleText: " ? ",
+                                middleText: " ${listOfReleaseGoodsToDisplay[index].libelle} ",
                                 textConfirm: 'Supprimer',
                                 textCancel: 'Annuler',
                                 barrierDismissible: false,
                                 cancelTextColor: Colors.black87,
                                 confirmTextColor: Colors.red,
                                 buttonColor: AppColors.mainColor,
-                                onConfirm: (){} ,
+                                onConfirm: (){
+                                  controller.deletePub(id: listOfReleaseGoodsToDisplay[index].id);
+                                } ,
                                 onCancel: () => Get.back(),
                               );
-                              controller.deletePub(id: listOfReleaseGoodsToDisplay[index].id);
+
                             }
                           },),
                       ],),

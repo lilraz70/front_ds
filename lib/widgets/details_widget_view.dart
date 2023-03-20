@@ -912,18 +912,6 @@ class DetailsWidgetState extends State<DetailsWidgetView> {
         widht: double.infinity,
         imageUrl: releaseGoodDetails.image_url,
         child: Scaffold(
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
-          floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-          floatingActionButton: IconButton(
-              onPressed: () async {
-                await launch("tel:0022674783108");
-              },
-              icon: const Icon(
-                Icons.call,
-                color: Colors.green,
-                size: 20,
-              )),
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             leading: InkWell(

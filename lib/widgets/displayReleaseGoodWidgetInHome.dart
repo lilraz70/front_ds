@@ -432,13 +432,8 @@ class _DetailsWidgetState extends State<DetailsWidget> {
 // var city_id=1;
     String fullUrl =
         '${apiUrl}v1/bookreleasegoods?releasegood_id=$releasegoodId&user_id=$userAccess';
-
-    // print(fullUrl);
     final uri = Uri.parse(fullUrl);
     http.Response response2 = await http.post(uri, headers: headers);
-
-    //var data = jsonDecode(response2.body.toString());
-
     return response2;
   }
 

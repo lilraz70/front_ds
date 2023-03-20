@@ -11,7 +11,7 @@ class PubServices {
 
   static Future<RequestResult> deletePub({required int id}) async {
     var request = await httpGET(
-        "/destroye-release-good/$id",);
+        "/v1/destroye-release-good/$id",);
     if (request.ok) {
         return RequestResult(true, request.data);
       } else {

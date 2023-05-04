@@ -1,16 +1,23 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:collection/collection.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:nb_utils/nb_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../configs/app_routes.dart';
 import '../configs/http_config.dart';
 import '../models/BookReleaseGoodModel.dart';
 import '../models/ReleaseGoodModel3.dart';
 import '../pages/searchReleaseGoods.dart';
 import '../utils/colors.dart';
+import 'details_widget_view.dart';
 import 'mediumText.dart';
 
 class DisplayReleaseWidget extends StatefulWidget {
@@ -62,9 +69,8 @@ class _DisplayReleaseWidgetState extends State<DisplayReleaseWidget> {
   String retreiveConvenienceNb(List<Releasegoodconvenience>? list, int convID) {
     String number = '0';
     for (var element in list!) {
-          if (int.parse(element.conveniencetypeId) == convID) {
-        number = element.number;
-
+          if (element.conveniencetypeId == convID) {
+           number = element.number.toString();
       }
     }
 
@@ -73,110 +79,162 @@ class _DisplayReleaseWidgetState extends State<DisplayReleaseWidget> {
 
   @override
   Widget build(BuildContext context) {
+    double deviceHeight = MediaQuery.of(context).size.height;
+    double deviceWidth = MediaQuery.of(context).size.width;
+    double deviceText = MediaQuery.textScaleFactorOf(context);
+    final formatCurrency = NumberFormat.simpleCurrency(name: "");
     return ListView.separated(
         itemCount:listOfReleaseGoodsToDisplay.length,
         itemBuilder: (context, index) {
           return Column(
             children: [
-              Container(
-                height: 250,
-                padding: const EdgeInsets.all(10),
+              SizedBox(
+                height: deviceHeight * 0.5,
+                width: deviceWidth * 0.90,
+                //padding: EdgeInsets.all(10),
                 child: InkWell(
-                  onTap: (){
-                      showDialog(context: context, builder:(BuildContext context) {
-
-                        return DetailsWidget(releaseGoodDetails: listOfReleaseGoodsToDisplay[index]);
-                      });
+                  onTap: () {
+                    Get.to(
+                       const DetailsWidgetView(),
+                        arguments: {
+                          'releaseGood': listOfReleaseGoodsToDisplay[index], }
+                    );
                   },
                   child: Card(
-
                     shape: RoundedRectangleBorder(
-                      side: const BorderSide(
-                          color:Colors.white,
-                          width:1
-                      ),
+                      side: const BorderSide(color: Colors.white, width: 1),
                       borderRadius: BorderRadius.circular(10.0),
-
                     ),
                     elevation: 15,
-                    //color: Colors.grey,
-
+                    color: Colors.white70,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-
-                        ListTile(
-
-                          title: Text(
-                            formatDatePresentation(listOfReleaseGoodsToDisplay[index].dateSortiPrevu),style: const TextStyle(fontSize: 15, color:Colors.blueGrey, fontWeight: FontWeight.bold), ),
-                          trailing: Text('${listOfReleaseGoodsToDisplay[index].propertytype?.intitule}',style:  const TextStyle(fontSize: 15, color: Colors.blueGrey, fontWeight: FontWeight.bold)),
-
-                        ),
-                        Container(
-                          padding: const EdgeInsets.only(right: 25,left: 25),
-                          height: 90,
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-
-                              /*  Text('Ville: ${listOfReleaseGoodsToDisplay[index].city?.intitule}',style: TextStyle(fontSize: 18, color: Colors.grey)),
-                                Text('Quartier: ${listOfReleaseGoodsToDisplay[index].quartier?.intitule}',style: TextStyle(fontSize: 18, color: Colors.grey)),
-                                Text('Localisation: ${listOfReleaseGoodsToDisplay[index].localisation}',style: TextStyle(fontSize: 18, color: Colors.grey),maxLines: 20,),
-                                Text(
-                                    'Prix: ${listOfReleaseGoodsToDisplay[index].cout}',style: TextStyle(fontSize: 18, color: Colors.grey)),
-                               */
-
-                                Row(
-                                  children: [
-                                    MediumText(text: 'Ville: ',color:AppColors.mainColor ,),
-                                    Text('${listOfReleaseGoodsToDisplay[index].city?.intitule}')
-                                  ],
-                                ),
-                                const SizedBox(height: 3,),
-                                Row(
-                                  children: [
-                                    MediumText(text: 'Quartier: ',color:AppColors.mainColor ,),
-                                    Text('${listOfReleaseGoodsToDisplay[index].quartier?.intitule}')
-                                  ],
-                                ),
-
-                                const SizedBox(height: 3,),
-
-                                Row(
-                                  children: [
-                                    MediumText(text: 'Localisation: ',color:AppColors.mainColor ,),
-                                    Flexible(child: Text('${listOfReleaseGoodsToDisplay[index].localisation}',)),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 3,),
-                                Row(
-                                  children: [
-                                    MediumText(text: 'Prix: ',color:AppColors.mainColor ,),
-                                    Text('${listOfReleaseGoodsToDisplay[index].cout}')
-                                  ],
-                                ),
-                              ],
-                            ),
+                        10.height,
+                        Padding(
+                          padding: EdgeInsets.only(
+                            right: deviceWidth * 0.020,
+                            left: deviceWidth * 0.020,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                formatDatePresentation(
+                                    listOfReleaseGoodsToDisplay[index]
+                                        .dateSortiPrevu),
+                                style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.blueGrey,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                  '${listOfReleaseGoodsToDisplay[index].propertytype?.intitule}',
+                                  style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.blueGrey,
+                                      fontWeight: FontWeight.bold))
+                            ],
                           ),
                         ),
-                        const SizedBox(
-                          height: 15,
+                        10.height,
+                        CachedNetworkImage(
+                          fit: BoxFit.cover,
+                          height: deviceHeight * 0.2,
+                          width: deviceWidth * 0.90,
+                          imageUrl: "$baseResourceUrl${listOfReleaseGoodsToDisplay[index].image_url}",
+                          placeholder: (context, url) =>   LoadingAnimationWidget.hexagonDots(
+                            color: Colors.white,
+                            size: 50,
+                          ),
+                          errorWidget: (context, url, error) => Image.asset(
+                            "assets/images/logomdpi.png",
+                            fit: BoxFit.cover,
+                            height: deviceHeight * 0.2,
+                            width: deviceWidth * 0.90,
+                          ),
                         ),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-
+                        25.height,
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
                           child: Row(
                             children: [
+                              MediumText(
+                                text: 'Ville : ',
+                                color: AppColors.mainColor,
+                              ),
+                              Text(
+                                '${listOfReleaseGoodsToDisplay[index].city?.intitule}',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 3,
+                                softWrap: true,
+                              )
+                            ],
+                          ),
+                        ),
+                        10.height,
+                        Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Row(
+                              children: [
+                                MediumText(
+                                  text: 'Quartier : ',
+                                  color: AppColors.mainColor,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    '${listOfReleaseGoodsToDisplay[index].quartier?.intitule}',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 3,
+                                    softWrap: true,
+                                  ),
+                                )
+                              ],
+                            )),
+                        10.height,
+                        Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Row(
+                              children: [
 
+                                MediumText(
+                                  text: 'Localisation : ',
+                                  color: AppColors.mainColor,
+                                ),
+                                Expanded(child:  Text(
+                                  '${listOfReleaseGoodsToDisplay[index].localisation}',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                  softWrap: true,
+                                ),)
+
+                              ],
+                            )),
+                        10.height,
+                        Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Row(
+                              children: [
+                                MediumText(
+                                  text: 'Prix : ',
+                                  color: AppColors.mainColor,
+                                ),
+                                Text(
+                                  " ${formatCurrency.format( double.parse(listOfReleaseGoodsToDisplay[index].cout) )} F CFA",
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 3,
+                                  softWrap: true,
+                                ),
+                              ],
+                            )),
+                        20.height,
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
                               SizedBox(
                                 height: iconContainerH,
-
                                 child: Column(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.center,
-
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Image.asset(
                                       'assets/icon/android/lit.png',
@@ -184,37 +242,30 @@ class _DisplayReleaseWidgetState extends State<DisplayReleaseWidget> {
                                       height: convenienceSize,
                                       width: convenienceSize,
                                     ),
-                                   /* Text(
-                                      '${listOfReleaseGoodsToDisplay[index].nbChambre}',
-                                      style: TextStyle(color: AppColors.mainColor),
-                                    ),*/
-
+                                    /*  Text(
+                                '${listOfReleaseGoodsToDisplay[index].nbChambre}',
+                                style: TextStyle(color: AppColors.mainColor),
+                              ),
+*/
                                     Text(
                                       retreiveConvenienceNb(
                                           listOfReleaseGoodsToDisplay[index]
                                               .releasegoodconvenience,
                                           13),
-                                      style: TextStyle(color: AppColors.mainColor,fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                          color: AppColors.mainColor,
+                                          fontWeight: FontWeight.bold),
                                     )
                                   ],
                                 ),
                               ),
-
-
                               const SizedBox(
                                 width: convenienceSpace,
                               ),
-                              /*   ClipRRect(
-                                              borderRadius:BorderRadius.circular(12),
-
-                                              child:
-                                              */
                               SizedBox(
                                 height: iconContainerH,
                                 child: Column(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.center,
-
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Image.asset(
                                       'assets/icon/android/douche.png',
@@ -227,24 +278,20 @@ class _DisplayReleaseWidgetState extends State<DisplayReleaseWidget> {
                                           listOfReleaseGoodsToDisplay[index]
                                               .releasegoodconvenience,
                                           5),
-                                      style: TextStyle(color: AppColors.mainColor,fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                          color: AppColors.mainColor,
+                                          fontWeight: FontWeight.bold),
                                     )
-
-
                                   ],
                                 ),
                               ),
-
-
                               const SizedBox(
                                 width: convenienceSpace,
                               ),
                               SizedBox(
                                 height: iconContainerH,
                                 child: Column(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.center,
-
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Image.asset(
                                       'assets/icon/android/cuisine.png',
@@ -257,21 +304,20 @@ class _DisplayReleaseWidgetState extends State<DisplayReleaseWidget> {
                                           listOfReleaseGoodsToDisplay[index]
                                               .releasegoodconvenience,
                                           4),
-                                      style: TextStyle(color: AppColors.mainColor,fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                          color: AppColors.mainColor,
+                                          fontWeight: FontWeight.bold),
                                     )
                                   ],
                                 ),
                               ),
-
                               const SizedBox(
                                 width: convenienceSpace,
                               ),
                               SizedBox(
                                 height: iconContainerH,
                                 child: Column(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.center,
-
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Image.asset(
                                       'assets/icon/android/ventilateur.png',
@@ -284,21 +330,20 @@ class _DisplayReleaseWidgetState extends State<DisplayReleaseWidget> {
                                           listOfReleaseGoodsToDisplay[index]
                                               .releasegoodconvenience,
                                           1),
-                                      style: TextStyle(color: AppColors.mainColor,fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                          color: AppColors.mainColor,
+                                          fontWeight: FontWeight.bold),
                                     )
                                   ],
                                 ),
                               ),
-
                               const SizedBox(
                                 width: convenienceSpace,
                               ),
                               SizedBox(
                                 height: iconContainerH,
                                 child: Column(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.center,
-
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Image.asset(
                                       'assets/icon/android/climatisation.png',
@@ -311,25 +356,22 @@ class _DisplayReleaseWidgetState extends State<DisplayReleaseWidget> {
                                           listOfReleaseGoodsToDisplay[index]
                                               .releasegoodconvenience,
                                           2),
-                                      style: TextStyle(color: AppColors.mainColor,fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                          color: AppColors.mainColor,
+                                          fontWeight: FontWeight.bold),
                                     )
                                   ],
                                 ),
                               ),
-
-
                               const SizedBox(
                                 width: convenienceSpace,
                               ),
                               ClipRRect(
-                                  borderRadius:
-                                  BorderRadius.circular(12),
-                                  child: SizedBox(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
                                     height: iconContainerH,
                                     child: Column(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
-
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Image.asset(
                                           'assets/icon/android/garage.png',
@@ -342,13 +384,13 @@ class _DisplayReleaseWidgetState extends State<DisplayReleaseWidget> {
                                               listOfReleaseGoodsToDisplay[index]
                                                   .releasegoodconvenience,
                                               6),
-                                          style: TextStyle(color: AppColors.mainColor,fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                              color: AppColors.mainColor,
+                                              fontWeight: FontWeight.bold),
                                         )
                                       ],
                                     ),
                                   )),
-
-
                             ],
                           ),
                         )

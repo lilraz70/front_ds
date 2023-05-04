@@ -78,10 +78,8 @@ class EditProfilController extends GetxController {
         );
         SessionData.saveUser(Updateuser.toJson());
         isLoading(false);
-        showMessage(type: 'success', title: "Modification reussi", message:"Modification reussi avec success");
-        Get.offAllNamed(
-          RouteName.editProfilView,
-        );
+        Get.back();
+        showMessage(type: 'success', title: "Succès", message:"Informations personnelles modifiées avec succès");
 
       }else {
         isLoading(false);

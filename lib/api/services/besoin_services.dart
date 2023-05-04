@@ -11,7 +11,7 @@ import '../../models/user.dart';
 class BesoinServices {
   static Map authUser = SessionData.getUser();
   static Future<RequestResult> postBesoin({required String description, required String titre}) async {
-    var request = await httpPOST("/v1/besoins/", {
+    var request = await httpPOST("/v1/besoins", {
       'userId': authUser['id'],
       'description': description,
       'titre': titre,

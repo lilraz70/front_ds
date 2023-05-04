@@ -5,13 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../configs/app_routes.dart';
 import '../../configs/http_config.dart';
 import '../../configs/session_data.dart';
+import '../../constants/colors.dart';
 import '../../controllers/pub_controller.dart';
 import '../../functions/utils.dart';
 import '../../models/ReleaseGoodModel3.dart';
+import '../../pages/enregistrerReleaseGood.dart';
 import 'my_pub_view_content.dart';
 
 
@@ -62,8 +65,12 @@ class _MyPubViewState extends State<MyPubView> {
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
-                return const Center(
-                  child: CircularProgressIndicator(color: Colors.indigo),
+                return  Center(
+                  child:  LoadingAnimationWidget.flickr(
+                    leftDotColor: AppColors.mainColor,
+                    rightDotColor: AppColors.mainColor2,
+                    size: 50,
+                  ),
                 );
               case ConnectionState.done:
               default:
@@ -91,7 +98,8 @@ class _MyPubViewState extends State<MyPubView> {
                 } else if (snapshot.hasData) {
                   return myPubViewContent;
                 } else {
-                  return const Center(child: Text('No data'));
+                  return const Center(
+                      child: Text("Aucune publication pour le moment "));
                 }
             }
           }),
@@ -130,7 +138,7 @@ class _MyPubViewState extends State<MyPubView> {
     };
 
     // var city_id=1;
-    String fullUrl = '${baseUrl}logout';
+    String fullUrl = '${baseUrl2}logout';
 
     // print(fullUrl);
     final uri = Uri.parse(fullUrl);
@@ -296,24 +304,21 @@ class _MyPubViewState extends State<MyPubView> {
     double deviceHeight = MediaQuery.of(context).size.height;
     double deviceWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-
       appBar: AppBar(
-        title: const Text('Mes publications'),
-        centerTitle: true,
-        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.offAllNamed(
-              RouteName.navigationView,
-            );
+            Get.back();
           },
         ),
+        title: const Text('Mes publications'),
+        centerTitle: true,
+        elevation: 0,
         actions: [
           InkWell(
             onTap: () {
-              Get.offAllNamed(
-                RouteName.storeReleaseGood,
+              Get.to(
+                  EnregisterReleaseGood(),
               );
             },
             child: const Icon(
@@ -393,7 +398,7 @@ MyPubViewContent myPubViewContent = MyPubViewContent();
 List<ReleaseGoodModel3> listOfReleaseGoodsInitial = [];
 List<ReleaseGoodModel3> listOfReleaseGoodsToDisplay = [];
 bool connectivity = false;
-const baseUrl = apiUrl;
+const baseUrl2 = apiUrl;
 var fullUrl = '${apiUrl}v1/release-goods-search/${user['id']}';
 //var fullUrl = '${apiUrl}v1/release-goods';
 late StreamSubscription subscription;

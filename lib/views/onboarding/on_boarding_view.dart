@@ -10,20 +10,20 @@ import '../../constants/colors.dart';
 final pages = [
 
    PageData(
-  image_url: "assets/images/logomdpi.png",
+  image_url: "assets/images/onboarding1.jpg",
     title: "Trouver la maison qu'il vous faut ",
     bgColor:AppColors.mainColor,
     textColor: Colors.white,
   ),
    PageData(
-    image_url: "assets/images/logomdpi.png",
+    image_url: "assets/images/onboarding2.jpg",
     title: "Rechercher facilement",
     bgColor: AppColors.mainColor2, //Color(0xfffab800),
     textColor: Color(0xff3b1790),
   ),
   const PageData(
-    image_url: "assets/images/logomdpi.png",
-    title: "Chercher facilement vos maisons",
+    image_url: "assets/images/onboarding3.jpg",
+    title: "Gagner des commission sur vos locations",
     bgColor: Color(0xffffffff),
     textColor: Color(0xff3b1790),
   ),
@@ -96,7 +96,7 @@ class _Page extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset(page.image_url!, fit: BoxFit.cover,width: screenWidth * 0.8,),
+        Image.asset(page.image_url!, fit: BoxFit.cover,width: screenWidth * 1,height: screenHeight * 0.3,),
         50.height,
         Text(
           page.title ?? "",
@@ -105,7 +105,7 @@ class _Page extends StatelessWidget {
               fontSize: screenHeight * 0.035,),
            textAlign: TextAlign.center,
         ),
-        150.height,
+        200.height,
       ],
     );
   }

@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:front_ds/views/profil/profil_view.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 import '../../configs/app_routes.dart';
@@ -73,35 +75,31 @@ class NavigationViewState extends State<NavigationView> {
             ),
           ],
         ),
-        actions : <Widget> [ authUser["photo_de_profil"] != null
-            ? Padding(
-          padding: EdgeInsets.only(right: deviceWidth * 0.030),
-              child: InkWell(
-          onTap: ((){
+        actions : <Widget> [
 
-          }),
-          child:
-          CircleAvatar(
-              backgroundImage: NetworkImage(
-                  '$baseResourceUrl${authUser["photo_de_profil"]}'),
-              maxRadius: 20,
-              backgroundColor: Colors.white,
-          ),
-        ),
-            )
-            : Padding(
-          padding: EdgeInsets.only(right: deviceWidth * 0.030),
+          CachedNetworkImage(
+            imageUrl: "$baseResourceUrl${authUser["photo_de_profil"]}",
+            imageBuilder: (context, imageProvider) => Padding(
+              padding: EdgeInsets.only(right: deviceWidth * 0.030),
               child: InkWell(
-          onTap: ((){
+                onTap: ((){
 
-          }),
-          child: const CircleAvatar(
-              backgroundImage: AssetImage("assets/images/defaultavatar.png"),
-              maxRadius: 20,
-              backgroundColor: Colors.white,
+                }),
+                child:
+                CircleAvatar(
+                  backgroundImage: imageProvider,
+                  maxRadius: 20,
+                  backgroundColor: Colors.white,
+                ),
+              ),
+            ),
+            placeholder: (context, url) => LoadingAnimationWidget.beat(
+              color: Colors.white,
+              size: 50,
+            ),
+            errorWidget: (context, url, error) =>  Image.asset("assets/images/defaultavatar.png"),
           ),
-        ),
-            ),],
+        ],
       ),
       body: SafeArea(
           child: getSlectedWidget(index: _selectedIndex)
@@ -109,7 +107,7 @@ class NavigationViewState extends State<NavigationView> {
       bottomNavigationBar: SalomonBottomBar(
           currentIndex: _selectedIndex,
           selectedItemColor: const Color(0xff6200ee),
-          unselectedItemColor: const Color(0xff757575),
+          unselectedItemColor: Colors.black,
           onTap: (index) {
             setState(() {
               _selectedIndex = index;

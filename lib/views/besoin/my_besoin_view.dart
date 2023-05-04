@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:front_ds/controllers/besoin_controller.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:nb_utils/nb_utils.dart';
 import '../../components/custum_tag.dart';
 import '../../components/list_title_shimmer.dart';
@@ -33,17 +34,6 @@ class MyBesoinViewState extends State<MyBesoinView> {
       },
       child: Scaffold(
         appBar:AppBar(
-          leading: InkWell(
-            onTap: ((){
-              Get.offAllNamed(
-                  RouteName.navigationView);
-            }),
-            child: const Icon(
-              Icons.arrow_back,
-              size: 25,
-              color: Colors.white,
-            ),
-          ),
           title: const Text("Mes Besoins"),
         ),
         body: SafeArea(
@@ -51,10 +41,6 @@ class MyBesoinViewState extends State<MyBesoinView> {
             padding: EdgeInsets.all(deviceWidth * 0.030),
             children: [
               //Header
-              MediumText(
-                  text: 'Mes besoins',
-                  color: Colors.indigo,
-                  size: 12),
               10.height,
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,7 +101,7 @@ class MyBesoinViewState extends State<MyBesoinView> {
                                                       Colors.white,
                                                     ),
                                                   ),
-                                                  Expanded(
+                                                  Flexible(
                                                     child: Padding(
                                                       padding: EdgeInsets.only(left: deviceWidth * 0.030),
                                                       child: Column(
@@ -126,53 +112,42 @@ class MyBesoinViewState extends State<MyBesoinView> {
                                                             children: [
                                                               Text(
                                                                 "${besoin.titre}",
-                                                                textAlign : TextAlign.center,
+                                                                textAlign: TextAlign.center,
                                                                 style: const TextStyle(
-                                                                    color: Colors
-                                                                        .black,
-                                                                    fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
+                                                                  color: Colors.black,
+                                                                  fontWeight: FontWeight.bold,
+                                                                ),
                                                                 overflow: TextOverflow.clip,
                                                               ),
                                                               10.height,
                                                               Row(
                                                                 children: [
                                                                   Text(
-                                                                    "${besoin.user?.name}",style: const TextStyle(color: Colors
-                                                                      .grey, fontWeight: FontWeight.bold, fontSize: 10),),
-                                                                  SizedBox(
-                                                                    width:
-                                                                    deviceWidth *
-                                                                        0.02,
+                                                                    "${besoin.user?.name}",
+                                                                    style: const TextStyle(
+                                                                      color: Colors.grey,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      fontSize: 10,
+                                                                    ),
                                                                   ),
-                                                                  const Text("•",style: TextStyle(color: Colors
-                                                                      .grey,),),
                                                                   SizedBox(
-                                                                    width:
-                                                                    deviceWidth *
-                                                                        0.02,
+                                                                    width: deviceWidth * 0.02,
+                                                                  ),
+                                                                  const Text(
+                                                                    "•",
+                                                                    style: TextStyle(
+                                                                      color: Colors.grey,
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    width: deviceWidth * 0.02,
                                                                   ),
                                                                   Text(
-                                                                    formattedDate,style: const TextStyle(color: Colors
-                                                                      .grey,fontSize: 10),),
-
-                                                                  SizedBox(
-                                                                    width:
-                                                                    deviceWidth *
-                                                                        0.02,
-                                                                  ),
-                                                                  const Text("•", style: TextStyle(color: Colors
-                                                                      .grey,),),
-                                                                  SizedBox(
-                                                                    width:
-                                                                    deviceWidth *
-                                                                        0.02,
-                                                                  ),
-                                                                  const Icon(
-                                                                    Icons.public,
-                                                                    color: Colors
-                                                                        .grey,
+                                                                    formattedDate,
+                                                                    style: const TextStyle(
+                                                                      color: Colors.grey,
+                                                                      fontSize: 10,
+                                                                    ),
                                                                   ),
                                                                 ],
                                                               ),
@@ -239,8 +214,11 @@ class MyBesoinViewState extends State<MyBesoinView> {
                                         ),
                                       );
                                     } else {
-                                      return const Center(
-                                          child: CircularProgressIndicator());
+                                      return  LoadingAnimationWidget.flickr(
+                                        leftDotColor: AppColors.mainColor,
+                                        rightDotColor: AppColors.mainColor2,
+                                        size: 50,
+                                      );
                                     }
                                   }),
                             ),
@@ -248,9 +226,10 @@ class MyBesoinViewState extends State<MyBesoinView> {
                         ],
                       );
                     } else {
-                      return SizedBox(
+                      return  SizedBox(
                           height: deviceHeight * 0.7,
-                          child: const ListTitleShimmer());
+                          child: const Center(
+                              child: Text("Aucun besoin pour le moment ")));
                     }
                   }),
                 ],

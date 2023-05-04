@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:front_ds/constants/colors.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../configs/app_routes.dart';
 import '../configs/http_config.dart';
@@ -13,6 +15,7 @@ import '../functions/utils.dart';
 import '../models/ReleaseGoodModel3.dart';
 import '../widgets/displayReleaseGoodWidgetInHome.dart';
 import '../widgets/mediumText.dart';
+import 'enregistrerReleaseGood.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -56,8 +59,12 @@ class _HomeState extends State<Home> {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
-              return const Center(
-                child: CircularProgressIndicator(color: Colors.indigo),
+              return Center(
+                child: LoadingAnimationWidget.flickr(
+                  leftDotColor: AppColors.mainColor,
+                  rightDotColor: AppColors.mainColor2,
+                  size: 50,
+                ),
               );
             case ConnectionState.done:
             default:
@@ -439,15 +446,13 @@ class _HomeState extends State<Home> {
                       height: 50,
                       width: 50,
                       child: FloatingActionButton(
+                        backgroundColor: Colors.purple,
+                        foregroundColor: Colors.white,
                         onPressed: () {
-                          Get.offAllNamed(
-                            RouteName.storeReleaseGood,
-                          );
+                          Get.to(() =>  EnregisterReleaseGood(),);
                         },
-                        backgroundColor: Colors.white,
                         child: const Icon(
                           Icons.add,
-                          color: Colors.indigo,
                         ),
                       )))
             ],

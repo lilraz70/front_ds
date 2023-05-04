@@ -12,9 +12,11 @@ getUserAccess()async {
 Map user = SessionData.getUser();
 String userAccess = user["telephone"];
 String token = SessionData.getToken();
-const String apiUrl='http://192.168.0.128:8000/api/';
+const String apiUrl='https://donia-services.com/api/';
+//const String apiUrl='http://192.168.1.68:8000/api/';
 const authorization = "Bearer ";
-const url = "http://192.168.0.128:8000";
+const url = "https://donia-services.com";
+//const url = "http://192.168.1.68:8000";
 const baseUrl = "$url/api";
 const baseResourceUrl = "$url/storage/";
 const contentType = "application/json; charset=UTF-8";

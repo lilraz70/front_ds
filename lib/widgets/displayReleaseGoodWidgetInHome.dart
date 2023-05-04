@@ -1,12 +1,15 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_shimmer/flutter_shimmer.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:front_ds/models/BookReleaseGoodModel.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
@@ -16,6 +19,7 @@ import '../configs/http_config.dart';
 import '../models/ReleaseGoodModel3.dart';
 import '../pages/home.dart';
 import '../utils/colors.dart';
+import 'details_widget_view.dart';
 import 'mediumText.dart';
 
 class DisplayReleaseWidgetInHome extends StatefulWidget {
@@ -78,6 +82,7 @@ class _DisplayReleaseWidgetInHomeState
     double deviceHeight = MediaQuery.of(context).size.height;
     double deviceWidth = MediaQuery.of(context).size.width;
     double deviceText = MediaQuery.textScaleFactorOf(context);
+    final formatCurrency = NumberFormat.simpleCurrency(name: "");
     return ListView.separated(
       itemCount: listOfReleaseGoodsToDisplay.length,
       // scrollDirection: Axis.horizontal,
@@ -87,22 +92,13 @@ class _DisplayReleaseWidgetInHomeState
         return Column(
           children: [
             SizedBox(
-              height: deviceHeight * 0.6,
+              height: deviceHeight * 0.550,
               width: deviceWidth * 0.90,
               //padding: EdgeInsets.all(10),
               child: InkWell(
                 onTap: () {
-                  // print(listOfReleaseGoodsToDisplay[index].releasegoodconvenience?.first.toJson());
-                 /* showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        //return dialogDetails(listOfReleaseGoodsToDisplay[index]);
-                        return DetailsWidget(
-                            releaseGoodDetails:
-                                listOfReleaseGoodsToDisplay[index]);
-                      });*/
-                  Get.offAllNamed(
-                    RouteName.detailsWidgetView,
+                  Get.to(
+                      const DetailsWidgetView(),
                     arguments: {
                        'releaseGood': listOfReleaseGoodsToDisplay[index], }
                   );
@@ -116,7 +112,7 @@ class _DisplayReleaseWidgetInHomeState
                   color: Colors.white70,
                   child: Column(
                     children: [
-                      20.height,
+                      10.height,
                       Padding(
                         padding: EdgeInsets.only(
                           right: deviceWidth * 0.020,
@@ -143,88 +139,97 @@ class _DisplayReleaseWidgetInHomeState
                           ],
                         ),
                       ),
-                      20.height,
-                      listOfReleaseGoodsToDisplay[index].image_url != null
-                          ? Image.network(
-                              "${baseResourceUrl}${listOfReleaseGoodsToDisplay[index].image_url}",
-                              fit: BoxFit.cover,
-                              height: deviceHeight * 0.2,
-                              width: deviceWidth * 0.90,
-                            )
-                          : Image.asset(
-                              "assets/images/logomdpi.png",
-                              fit: BoxFit.cover,
-                              height: deviceHeight * 0.2,
-                              width: deviceWidth * 0.90,
-                            ),
-                      20.height,
-                      Padding(
-                        padding: EdgeInsets.only(
-                          right: deviceWidth * 0.040,
-                          left: deviceWidth * 0.040,
+                      10.height,
+                      CachedNetworkImage(
+                        fit: BoxFit.cover,
+                        height: deviceHeight * 0.2,
+                        width: deviceWidth * 0.90,
+                        imageUrl: "$baseResourceUrl${listOfReleaseGoodsToDisplay[index].image_url}",
+                        placeholder: (context, url) =>   LoadingAnimationWidget.hexagonDots(
+                          color: Colors.white,
+                          size: 50,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              children: [
-                                MediumText(
-                                  text: 'Ville ',
-                                  color: AppColors.mainColor,
-                                ),
-                                3.height,
-                                Text(
-                                  '${listOfReleaseGoodsToDisplay[index].city?.intitule}',
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 3,
-                                  softWrap: true,
-                                )
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                MediumText(
-                                  text: 'Quartier ',
-                                  color: AppColors.mainColor,
-                                ),
-                                3.height,
-                                Text(
-                                  '${listOfReleaseGoodsToDisplay[index].quartier?.intitule}',
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 3,
-                                  softWrap: true,
-                                )
-                              ],
-                            ),
-                          ],
+                        errorWidget: (context, url, error) => Image.asset(
+                          "assets/images/logomdpi.png",
+                          fit: BoxFit.cover,
+                          height: deviceHeight * 0.2,
+                          width: deviceWidth * 0.90,
                         ),
                       ),
                       25.height,
-                      MediumText(
-                        text: 'Localisation ',
-                        color: AppColors.mainColor,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Row(
+                          children: [
+                            MediumText(
+                              text: 'Ville : ',
+                              color: AppColors.mainColor,
+                            ),
+                            Text(
+                              '${listOfReleaseGoodsToDisplay[index].city?.intitule}',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 3,
+                              softWrap: true,
+                            )
+                          ],
+                        ),
                       ),
-                      5.height,
-                      Text(
-                        '${listOfReleaseGoodsToDisplay[index].localisation}',
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 3,
-                        softWrap: true,
-                      ),
+                      10.height,
+                       Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          MediumText(
+                            text: 'Quartier : ',
+                            color: AppColors.mainColor,
+                          ),
+                          Expanded(
+                            child: Text(
+                              '${listOfReleaseGoodsToDisplay[index].quartier?.intitule}',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 3,
+                              softWrap: true,
+                            ),
+                          )
+                        ],
+                      )),
+                      10.height,
+                      Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Row(
+                            children: [
+
+                              MediumText(
+                                text: 'Localisation : ',
+                                color: AppColors.mainColor,
+                              ),
+                              Expanded(child:  Text(
+                                '${listOfReleaseGoodsToDisplay[index].localisation}',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                                softWrap: true,
+                              ),)
+
+                            ],
+                          )),
+                      10.height,
+                      Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Row(
+                            children: [
+                              MediumText(
+                                text: 'Prix : ',
+                                color: AppColors.mainColor,
+                              ),
+                              Text(
+                                " ${formatCurrency.format( double.parse(listOfReleaseGoodsToDisplay[index].cout) )} F CFA",
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 3,
+                                softWrap: true,
+                              ),
+                            ],
+                          )),
                       20.height,
-                      MediumText(
-                        text: 'Prix ',
-                        color: AppColors.mainColor,
-                      ),
-                      5.height,
-                      Text(
-                        '${listOfReleaseGoodsToDisplay[index].cout}',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 3,
-                        softWrap: true,
-                      ),
-                      30.height,
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
@@ -260,11 +265,6 @@ class _DisplayReleaseWidgetInHomeState
                             const SizedBox(
                               width: convenienceSpace,
                             ),
-                            /*   ClipRRect(
-                                            borderRadius:BorderRadius.circular(12),
-
-                                            child:
-                                            */
                             SizedBox(
                               height: iconContainerH,
                               child: Column(
@@ -291,7 +291,7 @@ class _DisplayReleaseWidgetInHomeState
                             const SizedBox(
                               width: convenienceSpace,
                             ),
-                            Container(
+                            SizedBox(
                               height: iconContainerH,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -317,7 +317,7 @@ class _DisplayReleaseWidgetInHomeState
                             const SizedBox(
                               width: convenienceSpace,
                             ),
-                            Container(
+                            SizedBox(
                               height: iconContainerH,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -343,7 +343,7 @@ class _DisplayReleaseWidgetInHomeState
                             const SizedBox(
                               width: convenienceSpace,
                             ),
-                            Container(
+                            SizedBox(
                               height: iconContainerH,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,

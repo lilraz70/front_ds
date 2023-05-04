@@ -47,35 +47,35 @@ class EditeInformationViewState extends State<EditInformationView> {
             controller: controller.telephone,
             validator: controller.telephoneValidator),
         20.height,
-        Container(
-            alignment: Alignment.center,
-            width: 200,
-            height: 50,
-            decoration: BoxDecoration(
-              color: AppColors.mainColor,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Obx(() {
-              if (controller.isLoading ==  false ) {
-                return InkWell(
-                  onTap: (() {
-                    controller.updateUser();
-                  }),
-                  child: const Text(
+        InkWell(
+          onTap: (() {
+            controller.updateUser();
+          }),
+          child: Container(
+              alignment: Alignment.center,
+              width: 200,
+              height: 50,
+              decoration: BoxDecoration(
+                color: AppColors.mainColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Obx(() {
+                if (controller.isLoading ==  false ) {
+                  return const Text(
                     "Modifier ",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                     ),
-                  ),
-                );
-              } else {
-                return  LoadingAnimationWidget.fourRotatingDots(
-                  color: Colors.white,
-                  size: 20,
-                );
-              }
-            })),
+                  );
+                } else {
+                  return  LoadingAnimationWidget.fourRotatingDots(
+                    color: Colors.white,
+                    size: 20,
+                  );
+                }
+              })),
+        ),
         15.height,
       ],
     );

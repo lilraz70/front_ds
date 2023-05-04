@@ -22,6 +22,7 @@ class InitReleaseGoodSearch extends StatefulWidget {
 }
 
 class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
+  bool isLoading = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -30,11 +31,18 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
 
   Widget dialogInitialization() {
     return AlertDialog(
+      backgroundColor: Colors.orange.withOpacity(0.2),
+      elevation: 0,
+      shadowColor: AppColors.mainColor,
+      surfaceTintColor: AppColors.mainColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
       title: MediumText(
         text: 'Faites vos Choix',
         color: AppColors.mainColor,
       ),
-      content: Container(
+      content: SizedBox(
         //padding: const EdgeInsets.all(10),
         height: 300,
         child: Column(
@@ -44,39 +52,49 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
             const SizedBox(
               height: 50,
             ),
-            TextButton(
-                onPressed: () {
-                  if (villeSelectionee.compareTo('Choisir la ville') == 0) {
-                    Fluttertoast.showToast(
-                        msg: "Définissez la localité",
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.CENTER,
-                        timeInSecForIosWeb: 20,
-                        backgroundColor: Colors.blue,
-                        textColor: Colors.white,
-                        fontSize: 16.0);
-                  } else if (typeSelectionne.compareTo('Choisir le type') ==
-                      0) {
-                    Fluttertoast.showToast(
-                        msg: "Définissez le type de bien",
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.CENTER,
-                        timeInSecForIosWeb: 20,
-                        backgroundColor: Colors.blue,
-                        textColor: Colors.white,
-                        fontSize: 16.0);
-                  } else {
-                    Get.offAllNamed(RouteName.searchReleaseGood, arguments: {
-                      "cityId": cityId,
-                      "quartierId": quartierId,
-                      "propertyId": propertyId,
-                      "villeSelectionnee": villeSelectionee,
-                      "quartierSelectionne": quartierSelectionne,
-                      "typeSelectionne": typeSelectionne
-                    });
-                  }
-                },
-                child: const Text('Rechercher'))
+            TextButton(onPressed: () {
+              if (villeSelectionee.compareTo('Choisir la ville') == 0) {
+                Fluttertoast.showToast(
+                    msg: "Définissez la localité",
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.CENTER,
+                    timeInSecForIosWeb: 20,
+                    backgroundColor: Colors.blue,
+                    textColor: Colors.white,
+                    fontSize: 16.0);
+              } else if (typeSelectionne.compareTo('Choisir le type') ==
+                  0) {
+                Fluttertoast.showToast(
+                    msg: "Définissez le type de bien",
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.CENTER,
+                    timeInSecForIosWeb: 20,
+                    backgroundColor: Colors.blue,
+                    textColor: Colors.white,
+                    fontSize: 16.0);
+              } else {
+                setState(() {
+                  isLoading = true;
+                });
+                Get.offAllNamed(RouteName.searchReleaseGood, arguments: {
+                  "cityId": cityId,
+                  "quartierId": quartierId,
+                  "propertyId": propertyId,
+                  "villeSelectionnee": villeSelectionee,
+                  "quartierSelectionne": quartierSelectionne,
+                  "typeSelectionne": typeSelectionne
+                });
+              }
+            },
+              style: TextButton.styleFrom(
+                backgroundColor: AppColors.mainColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: isLoading == false ?  Text('Rechercher',
+                  selectionColor: AppColors.mainColor2,
+                  style:const TextStyle(color: Colors.white,)): const CircularProgressIndicator(),)
           ],
         ),
       ),
@@ -177,6 +195,7 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       DropdownButton<String>(
+                          dropdownColor: Colors.orange.shade50,
                           icon: const Icon(Icons.arrow_downward),
                           hint: const Text("Chargement..."),
                           items: const [],
@@ -200,6 +219,7 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
                   } else if (snapshot.hasData) {
                     return StatefulBuilder(builder: (context, funct) {
                       return DropdownButton<String>(
+                        dropdownColor: Colors.orange.shade50,
                         icon: const Icon(Icons.arrow_downward),
                         hint: const Text("Choisir la ville"),
                         iconSize: 5,
@@ -235,7 +255,7 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
                             .map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
-                            child: Text(value),
+                            child: Text(value, style: const TextStyle(color: Colors.black),),
                           );
                         }).toList(),
                       );
@@ -257,6 +277,7 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       DropdownButton<String>(
+                          dropdownColor: Colors.orange.shade50,
                           icon: const Icon(Icons.arrow_downward),
                           hint: const Text("Chargement..."),
                           items: const [],
@@ -282,6 +303,7 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
                     return StatefulBuilder(builder: (context, funct) {
                       return DropdownButton<String>(
                         icon: const Icon(Icons.arrow_downward),
+                        dropdownColor: Colors.orange.shade50,
                         //items: listOfCity.cast(),
                         iconSize: 5,
                         elevation: 5,
@@ -310,7 +332,7 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
                             .map<DropdownMenuItem<String>>((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
-                            child: Text(value),
+                            child: Text(value, style: const TextStyle(color: Colors.black)),
                           );
                         }).toList(),
                       );
@@ -381,6 +403,7 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
                   DropdownButton<String>(
                       icon: const Icon(Icons.arrow_downward),
                       hint: const Text("Chargement..."),
+                      dropdownColor: Colors.orange.shade50,
                       items: const [],
                       iconSize: 5,
                       elevation: 5,
@@ -404,6 +427,7 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
                   return DropdownButton<String>(
                     icon: const Icon(Icons.arrow_downward),
                     //items: listOfCity.cast(),
+                    dropdownColor: Colors.orange.shade50,
                     iconSize: 5,
                     elevation: 5,
                     alignment: Alignment.center,
@@ -427,7 +451,7 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
-                        child: Text(value),
+                        child: Text(value, style: const TextStyle(color: Colors.black)),
                       );
                     }).toList(),
                   );
@@ -442,6 +466,7 @@ class _InitReleaseGoodSearchState extends State<InitReleaseGoodSearch> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.orange[50],
       key: scaffoldKey,
       appBar: AppBar(
         backgroundColor: AppColors.mainColor,

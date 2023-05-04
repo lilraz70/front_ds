@@ -18,17 +18,6 @@ class EditeProfilViewState extends State<EditProfilView>{
     EditProfilController controller = Get.put(EditProfilController());
     return Scaffold(
       appBar: AppBar(
-        leading: InkWell(
-          onTap: ((){
-            Get.offAllNamed(
-                RouteName.profilView);
-          }),
-          child: const Icon(
-            Icons.arrow_back,
-            size: 25,
-            color: Colors.white,
-          ),
-        ),
           title: const Text('Information personnelles', style: TextStyle(color: Colors.white), ) ,),
       body: SafeArea(
         child: SingleChildScrollView(

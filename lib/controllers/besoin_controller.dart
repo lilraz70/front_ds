@@ -37,7 +37,7 @@ class BesoinController extends GetxController {
         showMessage(
             type: "success",
             title: "L'ajout a reussi",
-            message: "L'ajout a  avec succèss");
+            message: "Bésoin ajouter  avec succèss");
 
       }else{
         loading(false);
@@ -70,20 +70,32 @@ class BesoinController extends GetxController {
             message: "Veuillez réessayez ");
       }
     }}
-  Future<void> getUserBesoin() async {
-      try{
-        isloading(true);
-        var request = await BesoinServices.getUserBesoin(id: 1 /*authUser["id"]*/,page :  userBesoinPage);
-        if(request.ok){
-          userBesoinLists = userBesoinLists +  request.data['data']['data'];
-          listUserBesoin.assignAll(addBesoinListFromJson(userBesoinLists));
 
-        }
-      }finally{
-        isloading(false);
+  Future<void> getUserBesoin() async {
+    try {
+      isloading(true);
+      var request = await BesoinServices.getUserBesoin(id: authUser["id"], page: userBesoinPage);
+      if (request.ok) {
+        var newUserBesoinList = addBesoinListFromJson(request.data['data']['data']);
+        listUserBesoin.addAll(newUserBesoinList);
       }
+    } finally {
+      isloading(false);
+    }
   }
   Future<void> getAllBesoin() async {
+    try {
+      isloading(true);
+      var request = await BesoinServices.getAllBesoin(page: page);
+      if (request.ok) {
+        var newBesoinList = addBesoinListFromJson(request.data['data']['data']);
+        listBesoin.addAll(newBesoinList);
+      }
+    } finally {
+      isloading(false);
+    }
+  }
+  /*Future<void> getAllBesoin() async {
     try{
       isloading(true);
       var request = await BesoinServices.getAllBesoin(page : page);
@@ -94,31 +106,27 @@ class BesoinController extends GetxController {
     }finally{
       isloading(false);
     }
-  }
-  Future<void>  scrollLister() async {
-    if(infinityLoading()) return ;
-    if(scrollController.position.pixels == scrollController.position.maxScrollExtent){
-
-      page = page +1;
+  }*/
+  Future<void> scrollLister() async {
+    if (infinityLoading() || isloading()) return;
+    if (scrollController.position.pixels == scrollController.position.maxScrollExtent) {
+      page = page + 1;
       infinityLoading(true);
       await getAllBesoin();
-      Future<void>.delayed(const Duration(seconds: 3), ((){
-        return infinityLoading(false);
-      }));
-
+      Future<void>.delayed(const Duration(seconds: 3), () {
+        infinityLoading(false);
+      });
     }
   }
-  Future<void>  scrollUserBesoinLister() async {
-    if(infinityLoading()) return ;
-    if(scrollUserBesoinController.position.pixels == scrollUserBesoinController.position.maxScrollExtent){
-
-      userBesoinPage =  userBesoinPage +1;
+  Future<void> scrollUserBesoinLister() async {
+    if (userBesoinInfinityLoading()) return;
+    if (scrollUserBesoinController.position.pixels == scrollUserBesoinController.position.maxScrollExtent) {
+      userBesoinPage = userBesoinPage + 1;
       userBesoinInfinityLoading(true);
-      await getAllBesoin();
-      Future<void>.delayed(const Duration(seconds: 3), ((){
-        return userBesoinInfinityLoading(false);
-      }));
-
+      await getUserBesoin();
+      Future<void>.delayed(const Duration(seconds: 3), () {
+        userBesoinInfinityLoading(false);
+      });
     }
   }
 
@@ -144,10 +152,15 @@ class BesoinController extends GetxController {
      loading(false);
     }
   }
+  void clearList() {
+    listBesoin.clear();
+    listUserBesoin.clear();
+  }
     @override
     void onInit() {
       // TODO: implement onInit
       super.onInit();
+      clearList();
       getUserBesoin();
       getAllBesoin();
       scrollController.addListener(scrollLister);

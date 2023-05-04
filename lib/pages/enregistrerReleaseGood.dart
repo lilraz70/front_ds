@@ -250,7 +250,7 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
       'Authorization': 'Bearer $token',
     };
 
-    String fullUrl = '${baseUrl}/v1/quartiers-search/?&setcity=$cityId';
+    String fullUrl = '$baseUrl/v1/quartiers-search/?&setcity=$cityId';
     final uri = Uri.parse(fullUrl);
     http.Response response2 = await http.get(uri, headers: headers);
 
@@ -736,16 +736,6 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: AppColors.mainColor,
-          leading: InkWell(
-            onTap: (() {
-              Get.offAllNamed(RouteName.navigationView);
-            }),
-            child: const Icon(
-              Icons.arrow_back,
-              size: 25,
-              color: Colors.white,
-            ),
-          ),
           title: Title(
             color: Colors.white,
             child: const Text(
@@ -784,9 +774,9 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
                               child: Column(
                                 children: [
                                   15.height,
-                                  Icon(Icons.add_to_photos),
+                                  const Icon(Icons.add_to_photos),
                                   3.height,
-                                  Text('Ajouter la photo par defaut'),
+                                  const Text('Ajouter la photo par defaut'),
                                 ],
                               ),
                             ),
@@ -987,12 +977,61 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
                         height: 40.0,
                       ),
                       TextFormField(
+                        textInputAction: TextInputAction.next,
                         controller: _prixController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
+                          labelStyle: const TextStyle(
+                            fontSize: 15,
+                            fontFamily: "Poppins-Regular",
+                            color: whiteColor,
+                          ).copyWith(
+                              color:
+                              AppColors.mainColor.withOpacity(.6)),
                           labelText: "Prix",
-                          labelStyle:
-                          TextStyle(fontSize: 20, color: Colors.black54),
-                          border: OutlineInputBorder(),
+                          hintText:
+                          "Prix",
+                          hintStyle: const TextStyle(
+                            fontSize: 15,
+                            fontFamily: "Poppins-Regular",
+                            color: whiteColor,
+                          ).copyWith(
+                              color:
+                              AppColors.mainColor.withOpacity(.6)),
+                          border: OutlineInputBorder(
+                            borderSide: Divider.createBorderSide(
+                              context,
+                              color: Colors.grey,
+                              width: .5,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              7,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: Divider.createBorderSide(
+                              context,
+                              color: AppColors.mainColor,
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              7,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: Divider.createBorderSide(
+                              context,
+                              color: AppColors.mainColor2,
+                              width: .5,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              7,
+                            ),
+                          ),
+                          fillColor: Colors.grey.withOpacity(.1),
+                          filled: true,
+                          contentPadding: const EdgeInsets.all(
+                            10,
+                          ),
                         ),
                         keyboardType: TextInputType.number,
                         maxLength: 7,
@@ -1007,13 +1046,61 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
                         height: 20.0,
                       ),
                       TextFormField(
+                        textInputAction: TextInputAction.next,
                         controller: _localisationController,
-                        decoration: const InputDecoration(
-                          labelText:
+                        decoration:InputDecoration(
+                          labelStyle: const TextStyle(
+                            fontSize: 15,
+                            fontFamily: "Poppins-Regular",
+                            color: whiteColor,
+                          ).copyWith(
+                              color:
+                              AppColors.mainColor.withOpacity(.6)),
+                          labelText: "Localisation",
+                          hintText:
                           "Localisation. Ex: à proximité de, à 100m de",
-                          labelStyle:
-                          TextStyle(fontSize: 20, color: Colors.black54),
-                          border: OutlineInputBorder(),
+                          hintStyle: const TextStyle(
+                            fontSize: 15,
+                            fontFamily: "Poppins-Regular",
+                            color: whiteColor,
+                          ).copyWith(
+                              color:
+                              AppColors.mainColor.withOpacity(.6)),
+                          border: OutlineInputBorder(
+                            borderSide: Divider.createBorderSide(
+                              context,
+                              color: Colors.grey,
+                              width: .5,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              7,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: Divider.createBorderSide(
+                              context,
+                              color: AppColors.mainColor,
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              7,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: Divider.createBorderSide(
+                              context,
+                              color: AppColors.mainColor2,
+                              width: .5,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              7,
+                            ),
+                          ),
+                          fillColor: Colors.grey.withOpacity(.1),
+                          filled: true,
+                          contentPadding: const EdgeInsets.all(
+                            10,
+                          ),
                         ),
                         keyboardType: TextInputType.multiline,
                         maxLength: 150,
@@ -1029,12 +1116,61 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
                         height: 20.0,
                       ),
                       TextFormField(
+                        textInputAction: TextInputAction.next,
                         controller: _commentaireController,
-                        decoration: const InputDecoration(
-                          labelText: "Commentaires",
-                          labelStyle:
-                          TextStyle(fontSize: 20, color: Colors.black54),
-                          border: OutlineInputBorder(),
+                        decoration:InputDecoration(
+                          labelStyle: const TextStyle(
+                            fontSize: 15,
+                            fontFamily: "Poppins-Regular",
+                            color: whiteColor,
+                          ).copyWith(
+                              color:
+                              AppColors.mainColor.withOpacity(.6)),
+                          labelText: "Commentaire",
+                          hintText:
+                          "Commentaire",
+                          hintStyle: const TextStyle(
+                            fontSize: 15,
+                            fontFamily: "Poppins-Regular",
+                            color: whiteColor,
+                          ).copyWith(
+                              color:
+                              AppColors.mainColor.withOpacity(.6)),
+                          border: OutlineInputBorder(
+                            borderSide: Divider.createBorderSide(
+                              context,
+                              color: Colors.grey,
+                              width: .5,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              7,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: Divider.createBorderSide(
+                              context,
+                              color: AppColors.mainColor,
+                              width: 2,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              7,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: Divider.createBorderSide(
+                              context,
+                              color: AppColors.mainColor2,
+                              width: .5,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              7,
+                            ),
+                          ),
+                          fillColor: Colors.grey.withOpacity(.1),
+                          filled: true,
+                          contentPadding: const EdgeInsets.all(
+                            10,
+                          ),
                         ),
                         keyboardType: TextInputType.multiline,
                         maxLength: 150,
@@ -1043,73 +1179,163 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
                       const SizedBox(
                         height: 20.0,
                       ),
-                      Container(
-                        decoration: const BoxDecoration(
-                            border: Border(
-                                left:
-                                BorderSide(width: 5, color: Colors.indigo))),
-                        child: Column(
-                          children: [
-                            TextFormField(
-                              decoration: const InputDecoration(
-                                labelText: "Contact du bailleur",
-                                //errorText: "Renseignez le contact",
-                                labelStyle: TextStyle(
-                                    fontSize: 20, color: Colors.black54),
-                                border: OutlineInputBorder(),
+                      Column(
+                        children: [
+                          TextFormField(
+                            textInputAction: TextInputAction.next,
+                            decoration:InputDecoration(
+                              labelStyle: const TextStyle(
+                                fontSize: 15,
+                                fontFamily: "Poppins-Regular",
+                                color: whiteColor,
+                              ).copyWith(
+                                  color:
+                                  AppColors.mainColor.withOpacity(.6)),
+                              labelText: "Contact du bailleur",
+                              hintText:
+                              "Contact du bailleur",
+                              hintStyle: const TextStyle(
+                                fontSize: 15,
+                                fontFamily: "Poppins-Regular",
+                                color: whiteColor,
+                              ).copyWith(
+                                  color:
+                                  AppColors.mainColor.withOpacity(.6)),
+                              border: OutlineInputBorder(
+                                borderSide: Divider.createBorderSide(
+                                  context,
+                                  color: Colors.grey,
+                                  width: .5,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  7,
+                                ),
                               ),
-                              keyboardType: TextInputType.phone,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Renseignez le contact';
-                                }
-                                return null;
-                              },
-                              controller: _contactController,
-                            ),
-                            const SizedBox(
-                              height: 20.0,
-                            ),
-                            TextFormField(
-                              controller: _conditionController,
-                              decoration: const InputDecoration(
-                                labelText: "Conditions du bailleur",
-                                // errorText: "Renseignez les conditions du bailleur",
-                                labelStyle: TextStyle(
-                                    fontSize: 20, color: Colors.black54),
-                                border: OutlineInputBorder(),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: Divider.createBorderSide(
+                                  context,
+                                  color: AppColors.mainColor,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  7,
+                                ),
                               ),
-                              keyboardType: TextInputType.multiline,
-                              maxLength: 150,
-                              maxLines: 5,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Renseignez les conditions du bailleur';
-                                }
-                                return null;
-                              },
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: Divider.createBorderSide(
+                                  context,
+                                  color: AppColors.mainColor2,
+                                  width: .5,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  7,
+                                ),
+                              ),
+                              fillColor: Colors.grey.withOpacity(.1),
+                              filled: true,
+                              contentPadding: const EdgeInsets.all(
+                                10,
+                              ),
                             ),
-                            const SizedBox(
-                              height: 20.0,
+                            keyboardType: TextInputType.phone,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Renseignez le contact';
+                              }
+                              return null;
+                            },
+                            controller: _contactController,
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          TextFormField(
+                            textInputAction: TextInputAction.next,
+                            controller: _conditionController,
+                            decoration:InputDecoration(
+                              labelStyle: const TextStyle(
+                                fontSize: 15,
+                                fontFamily: "Poppins-Regular",
+                                color: whiteColor,
+                              ).copyWith(
+                                  color:
+                                  AppColors.mainColor.withOpacity(.6)),
+                              labelText: "Condition de bailleur",
+                              hintText:
+                              "Condition de bailleur",
+                              hintStyle: const TextStyle(
+                                fontSize: 15,
+                                fontFamily: "Poppins-Regular",
+                                color: whiteColor,
+                              ).copyWith(
+                                  color:
+                                  AppColors.mainColor.withOpacity(.6)),
+                              border: OutlineInputBorder(
+                                borderSide: Divider.createBorderSide(
+                                  context,
+                                  color: Colors.grey,
+                                  width: .5,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  7,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: Divider.createBorderSide(
+                                  context,
+                                  color: AppColors.mainColor,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  7,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: Divider.createBorderSide(
+                                  context,
+                                  color: AppColors.mainColor2,
+                                  width: .5,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  7,
+                                ),
+                              ),
+                              fillColor: Colors.grey.withOpacity(.1),
+                              filled: true,
+                              contentPadding: const EdgeInsets.all(
+                                10,
+                              ),
                             ),
-                            SizedBox(
-                                width: 215,
-                                child: StatefulBuilder(builder: (context, funct) {
-                                  return CheckboxListTile(
-                                      value: _accord,
-                                      activeColor: Colors.pink,
-                                      title: MediumText(
-                                        text: 'J\'ai l\'accord du bailleur',
-                                        color: Colors.pink,
-                                      ),
-                                      onChanged: (v) {
-                                        funct(() {
-                                          _accord = v!;
-                                        });
+                            keyboardType: TextInputType.multiline,
+                            maxLength: 150,
+                            maxLines: 5,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Renseignez les conditions du bailleur';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(
+                            height: 20.0,
+                          ),
+                          SizedBox(
+                              width: 215,
+                              child: StatefulBuilder(builder: (context, funct) {
+                                return CheckboxListTile(
+                                    value: _accord,
+                                    activeColor: Colors.pink,
+                                    title: MediumText(
+                                      text: 'J\'ai l\'accord du bailleur',
+                                      color: Colors.pink,
+                                    ),
+                                    onChanged: (v) {
+                                      funct(() {
+                                        _accord = v!;
                                       });
-                                })),
-                          ],
-                        ),
+                                    });
+                              })),
+                        ],
                       ),
                       const SizedBox(
                         height: 15.0,

@@ -1191,7 +1191,7 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
 
                               onPressed: periodActive
                                   ? () {
-                                      showMonthYearPicker(
+                                      /*showMonthYearPicker(
                                         context: context,
                                         initialDate: dateTimeChoosen,
                                         firstDate: DateTime(2022),
@@ -1207,39 +1207,22 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
                                                 dateTimeChoosen = date
                                               });
                                         }
+                                      });*/
+                                      showDatePicker(
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime.now(),
+                                      lastDate: DateTime(2025),
+                                      locale: const Locale("fr"))
+                                          .then((value) {
+                                      dateTimeChoosen = value!;
+                                      funct(() => {
+                                      //dateDeLiberation = DateFormat.yMd().format(value!)
+                                      periodActive = true,
+                                      periodeDeLiberation =
+                                      formatDatePresentation(value.toString())
                                       });
-
-                                      /* showDialog(context: context,
-                                        builder: (BuildContext context){
-                                          return AlertDialog(
-                                              title: Text(''),
-                                              content: Column(
-
-                                                children: <Widget>[
-
-                                                  SizedBox(
-                                                    height:200,
-                                                    width: 400,
-                                                    child: ListView(
-                                                      // shrinkWrap: true,
-                                                      children: [
-                                                        getDateRangePicker(),
-                                                        MaterialButton(
-                                                          child: Text("OK"),
-                                                          onPressed: () {
-                                                            Navigator.pop(context);
-                                                          },
-                                                        )
-                                                      ],
-                                                    ),
-                                                  )
-
-                                                ],
-                                              ));
-                                        });*/
-                                      /* SfDateRangePicker(
-                                      view: DateRangePickerView.year,
-                                    );*/
+                                      });
                                     }
                                   : null,
                               //child: MediumText(text: 'Date de Liberation:\n $dateDeLiberation'),
@@ -1298,6 +1281,7 @@ class _SearchReleaseGoodsState extends State<SearchReleaseGoods> {
                       Container(
                         margin: const EdgeInsets.only(left: 40, right: 40),
                         child: TextFormField(
+                          textInputAction: TextInputAction.next,
                           controller: _prixController,
                           decoration: const InputDecoration(
                             labelText: "Prix maximum",

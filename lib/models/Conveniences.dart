@@ -13,8 +13,8 @@ class Conveniences {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     deletedAt = json['deleted_at'];
-   // morethanone = int.parse(json['morethanone']);
-    morethanone = json['morethanone'];
+    morethanone = int.parse(json['morethanone']);
+  //  morethanone = json['morethanone'];
   }
   late int id;
   late String intitule;

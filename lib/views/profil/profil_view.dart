@@ -1,23 +1,26 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:front_ds/constants/colors.dart';
 import 'package:front_ds/functions/utils.dart';
+import 'package:front_ds/views/besoin/my_besoin_view.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../../api/services/google_sign_in_api.dart';
 import '../../configs/app_routes.dart';
 import '../../configs/http_config.dart';
 import '../../configs/session_data.dart';
 import '../../controllers/edit_profil_controller.dart';
+import '../pubs/my_pub_view.dart';
+import 'edit_profil_view.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     Map? authUser = SessionData.getUser();
@@ -46,10 +49,7 @@ class ProfileView extends StatelessWidget {
                     children: [
                       FloatingActionButton.extended(
                         onPressed: () {
-                          Get.offAllNamed(
-                            RouteName.myPubView,
-                          );
-                          //Navigator.pushNamed(context, '/myPubView');
+                          Get.to(() => const MyPubView());
                         },
                         heroTag: 'Mes publications',
                         elevation: 0,
@@ -57,18 +57,18 @@ class ProfileView extends StatelessWidget {
                         icon: const Icon(Icons.public),
                         backgroundColor: AppColors.mainColor,
                       ),
-                      const SizedBox(width: 16.0),
-                      FloatingActionButton.extended(
-                        onPressed: () {
-                          Get.offAllNamed(
-                            RouteName.myBesoinView,
-                          );
-                        },
-                        heroTag: 'Mes besoins',
-                        elevation: 0,
-                        backgroundColor: Colors.red,
-                        label: const Text("Mes besoins"),
-                        icon: const Icon(Icons.favorite_border),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 5),
+                        child: FloatingActionButton.extended(
+                          onPressed: () {
+                            Get.to(() => const MyBesoinView());
+                          },
+                          heroTag: 'Mes besoins',
+                          elevation: 0,
+                          backgroundColor: Colors.red,
+                          label: const Text("Mes besoins"),
+                          icon: const Icon(Icons.favorite_border),
+                        ),
                       ),
                     ],
                   ),
@@ -83,22 +83,19 @@ class ProfileView extends StatelessWidget {
     );
   }
 }
-
 class ProfileInfoRow extends StatelessWidget {
   ProfileInfoRow({Key? key}) : super(key: key);
 
   final List<ProfileInfoItem> _items =  [
     ProfileInfoItem(title:  "Mes informations", icon: Icons.person, action: () {
-      Get.offAllNamed(
-      RouteName.editProfilView,
-    ); },  ),
+      Get.to(() => EditProfilView());},  ),
    ProfileInfoItem( title: "Déconnexion", icon: Icons.logout , action:(() async {
       Map<String, String> headers = {
         "Content-Type": "application/json",
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
       };
-      String fullUrl = '$baseUrl/api/logout';
+      String fullUrl = '$baseUrl/logout';
       final uri = Uri.parse(fullUrl);
       http.Response response2 = await http.post(uri, headers: headers);
       var data = jsonDecode(response2.body);
@@ -204,14 +201,12 @@ class ProfileInfoRow extends StatelessWidget {
     );
   }
 }
-
 class ProfileInfoItem {
   final String title;
   final IconData icon;
   final VoidCallback action;
   const ProfileInfoItem({required this.title, required this.icon, required this.action});
 }
-
 class TopPortion extends StatelessWidget {
    TopPortion({Key? key}) : super(key: key);
   EditProfilController controller = Get.put(EditProfilController());
@@ -243,28 +238,23 @@ class TopPortion extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                if( authUser["photo_de_profil"] != null)
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: NetworkImage(
-                            '$baseResourceUrl${authUser["photo_de_profil"]}'
-                        )),
-                  ),
-                ),
-                if( authUser["photo_de_profil"] == null)
-                  Container(
-                    decoration: const BoxDecoration(
+                CachedNetworkImage(
+                  imageUrl: "$baseResourceUrl${authUser["photo_de_profil"]}",
+                  imageBuilder: (context, imageProvider) =>  Container(
+                    decoration: BoxDecoration(
                       color: Colors.black,
                       shape: BoxShape.circle,
                       image: DecorationImage(
                           fit: BoxFit.cover,
-                          image: AssetImage("assets/images/defaultavatar.png"),),
+                          image: imageProvider),
                     ),
                   ),
+                  placeholder: (context, url) => LoadingAnimationWidget.beat(
+                    color: Colors.white,
+                    size: 50,
+                  ),
+                  errorWidget: (context, url, error) =>  Image.asset("assets/images/defaultavatar.png"),
+                ),
                 Positioned(
                   bottom: 0,
                   right: 0,

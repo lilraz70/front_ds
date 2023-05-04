@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:front_ds/models/BookReleaseGoodModel.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
@@ -81,6 +83,7 @@ class _MyPubViewContentState
     double deviceHeight = MediaQuery.of(context).size.height;
     double deviceWidth = MediaQuery.of(context).size.width;
     double deviceText = MediaQuery.textScaleFactorOf(context);
+
     return ListView.separated(
       itemCount: listOfReleaseGoodsToDisplay.length,
       // scrollDirection: Axis.horizontal,
@@ -184,19 +187,22 @@ class _MyPubViewContentState
                         ),
                       ),
                       20.height,
-                      listOfReleaseGoodsToDisplay[index].image_url != null
-                          ? Image.network(
-                              "${baseResourceUrl}${listOfReleaseGoodsToDisplay[index].image_url}",
-                              fit: BoxFit.cover,
-                              height: deviceHeight * 0.2,
-                              width: deviceWidth * 0.90,
-                            )
-                          : Image.asset(
-                              "assets/images/logomdpi.png",
-                              fit: BoxFit.cover,
-                              height: deviceHeight * 0.2,
-                              width: deviceWidth * 0.90,
-                            ),
+                      CachedNetworkImage(
+                        fit: BoxFit.cover,
+                        height: deviceHeight * 0.2,
+                        width: deviceWidth * 0.90,
+                        imageUrl: "$baseResourceUrl${listOfReleaseGoodsToDisplay[index].image_url}",
+                        placeholder: (context, url) =>   LoadingAnimationWidget.hexagonDots(
+                          color: Colors.white,
+                          size: 50,
+                        ),
+                        errorWidget: (context, url, error) => Image.asset(
+                          "assets/images/logomdpi.png",
+                          fit: BoxFit.cover,
+                          height: deviceHeight * 0.2,
+                          width: deviceWidth * 0.90,
+                        ),
+                      ),
                       20.height,
                       Padding(
                         padding: EdgeInsets.only(

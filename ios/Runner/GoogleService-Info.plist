@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>1056198279796-ncaiebm9082t82oeo9e0cno0copui7s9.apps.googleusercontent.com</string>
+	<string>1056198279796-3bgjm1091fbcfj9ccuoem31co954avq0.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.1056198279796-ncaiebm9082t82oeo9e0cno0copui7s9</string>
+	<string>com.googleusercontent.apps.1056198279796-3bgjm1091fbcfj9ccuoem31co954avq0</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>1056198279796-1ehv5prn6u40ghpaqh8d6b0qbljdpmi2.apps.googleusercontent.com</string>
+	<string>1056198279796-53vuc5i4614snd62na99r9tcjdh71tmd.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyC6OCRNdMzpe9Rfma8zeScxFXB0uZwOTI8</string>
 	<key>GCM_SENDER_ID</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.frontDs</string>
+	<string>com.doniacompany.doniaservices</string>
 	<key>PROJECT_ID</key>
 	<string>donia-services</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1056198279796:ios:a1a89774414ccdc2e78721</string>
+	<string>1:1056198279796:ios:3f51b80bc64352a2e78721</string>
 </dict>
 </plist>

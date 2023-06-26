@@ -1,11 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:front_ds/models/UserModel.dart';
 import 'package:http/http.dart' as http;
 
 import '../configs/http_config.dart';
-import '../utils/colors.dart';
+import '../models/UserModel.dart';
 
 class MonCompte extends StatefulWidget {
   const MonCompte({Key? key}) : super(key: key);

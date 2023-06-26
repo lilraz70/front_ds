@@ -19,6 +19,7 @@ import '../configs/http_config.dart';
 import '../controllers/release_good_controller.dart';
 import '../functions/utils.dart';
 import '../models/Conveniences.dart';
+import '../views/pubs/my_pub_view.dart';
 
 class EnregisterReleaseGood extends StatefulWidget {
    EnregisterReleaseGood({Key? key}) : super(key: key);
@@ -783,26 +784,25 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
                           ),
                         ),
                       if (controller.imageFile != null)
-                        Container(
-                          width: devicewidth * 0.80,
-                          height: deviceHeight * 0.2,
-                          decoration: BoxDecoration(
-                              image: controller.imageFile == null
-                                  ? null
-                                  : DecorationImage(
-                                  image: FileImage(
-                                      controller.imageFile ?? File('')),
-                                  fit: BoxFit.cover)),
-                          child: Center(
-                            child: IconButton(
-                              icon: const Icon(
+                        InkWell(
+                          onTap:(){
+                            controller.getImage();},
+                          child: Container(
+                            width: devicewidth * 0.80,
+                            height: deviceHeight * 0.2,
+                            decoration: BoxDecoration(
+                                image: controller.imageFile == null
+                                    ? null
+                                    : DecorationImage(
+                                    image: FileImage(
+                                        controller.imageFile ?? File('')),
+                                    fit: BoxFit.cover)),
+                            child: const Center(
+                              child:  Icon(
                                 Icons.image,
                                 size: 50,
                                 color: Colors.black38,
                               ),
-                              onPressed: () {
-                                controller.getImage();
-                              },
                             ),
                           ),
                         ),
@@ -1426,9 +1426,7 @@ class _EnregisterReleaseGoodState extends State<EnregisterReleaseGood> {
                                       type: "success",
                                       title: "Publication reussi",
                                       message: "Publié avec succès");
-                                  Get.offAllNamed(
-                                    RouteName.myPubView,
-                                  );
+                                  Get.to(MyPubView);
                                 } else {
                                   showMessage(
                                       type: 'error',
